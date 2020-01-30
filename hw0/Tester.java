@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 import ucb.junit.textui;
 
 /** Tests for hw0. 
- *  @author YOUR NAMES HERE
+ *  @author Ruize Xu
  */
 public class Tester {
 
