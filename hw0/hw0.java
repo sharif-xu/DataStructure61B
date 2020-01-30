@@ -1,16 +1,16 @@
-public class hw0{
-    public int max(int[] a){
+public class hw0 {
+    static int max(int[] a) {
         int max_int;
         max_int=a[0];
         for (int i = 0; i < a.length ; i++) {
-            if(max_int<=0)
+            if(max_int<=a[i])
                 max_int=a[i];
         }
         return max_int;
     }
 
-    boolean 3SUM(int[] b){
-        int val1, val2, val3;
+     static boolean Three_SUM(int[] b){
+        int val1, val2, val3=0;
         for (int i = 0; i < b.length; i++) {
             val1=b[i];
             for (int j = 0; j <b.length ; j++) {
@@ -26,8 +26,8 @@ public class hw0{
     }
 
 
-    boolean 3SUM_DISTINCT(int[] c){
-        int val1, val2, val3;
+    static boolean Three_SUM_DISTINCT(int[] c){
+        int val1, val2, val3 = 0;
         for (int i = 0; i <c.length ; i++) {
             val1=c[i];
             for (int j = i+1; j <c.length ; j++) {
@@ -41,7 +41,6 @@ public class hw0{
             return false;
         }
 
-
-    }
 }
+
 

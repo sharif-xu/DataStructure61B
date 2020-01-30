@@ -24,21 +24,30 @@ public class Tester {
     @Test
     public void maxTest() {
         // Change call to max to make this call yours.
-        assertEquals(14, max(new int[] { 0, -5, 2, 14, 10 }));
+        int[] arr1 = {1, 2, -2, -1, 3, 8, 24};
+        assertEquals(hw0.max(arr1), 24);
+        int[] arr2 = {1, 1, 1};
+        assertEquals(hw0.max(arr2), 1);
         // REPLACE THIS WITH MORE TESTS.
     }
 
     @Test
     public void threeSumTest() {
         // Change call to threeSum to make this call yours.
-        assertTrue(threeSum(new int[] { -6, 3, 10, 200 }));
+        int[] arr1 = {1, 2, 3, 0};
+        assertTrue(hw0.Three_SUM(arr1));
+        int[] arr2 = {0, 0, 0, 0};
+        assertTrue(hw0.Three_SUM(arr2));
         // REPLACE THIS WITH MORE TESTS.
     }
 
     @Test
     public void threeSumDistinctTest() {
         // Change call to threeSumDistinct to make this call yours.
-        assertFalse(threeSumDistinct(new int[] { -6, 3, 10, 200 }));
+        int[] arr1 = {-1, 1, 0};
+        assertTrue(hw0.Three_SUM_DISTINCT(arr1));
+        int[] arr2 = {0, 0, 0, 0};
+        assertTrue(hw0.Three_SUM_DISTINCT(arr2));
         // REPLACE THIS WITH MORE TESTS.
     }
 
