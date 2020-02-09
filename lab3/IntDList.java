@@ -49,7 +49,7 @@ public class IntDList {
      * @return The number of elements in this list.
      */
     public int size() {
-        // FIXME: Implement this method and return correct value
+
         int count = 1;
         DNode current_node = this._front;
         if (this._front == null && this._back == null)
@@ -75,7 +75,7 @@ public class IntDList {
      * @return The integer value at index i
      */
     public int get(int i) {
-        // FIXME: Implement this method and return correct value
+
         if (i > 0) {
             DNode node = this._front;
             while (i > 0) {
@@ -99,7 +99,7 @@ public class IntDList {
      * @param d value to be inserted in the front
      */
     public void insertFront(int d) {
-        // FIXME: Implement this method
+
         DNode node = new DNode(d);
         if (this._front == null && this._back == null) {
             this._front = node;
@@ -117,7 +117,7 @@ public class IntDList {
      * @param d value to be inserted in the back
      */
     public void insertBack(int d) {
-        // FIXME: Implement this `method`
+
         DNode node = new DNode(d);
         if (this._front == null && this._back == null) {
             this._front = node;
@@ -171,7 +171,7 @@ public class IntDList {
      * @return the item that was deleted
      */
     public int deleteFront() {
-        // FIXME: Implement this method and return correct value
+
         int value = this._front._val;
         if (this.size() > 1) {
             this._front = this._front._next;
@@ -190,7 +190,7 @@ public class IntDList {
      * @return the item that was deleted
      */
     public int deleteBack() {
-        // FIXME: Implement this method and return correct value
+
         int value = this._back._val;
         if (this.size() > 1) {
             this._back = this._back._prev;
@@ -215,7 +215,7 @@ public class IntDList {
      * @return the item that was deleted
      */
     public int deleteAtIndex(int index) {
-        // FIXME: Implement this method and return correct value
+
         int value = 0;
         if (this.size() > 0) {
             if (index == 0 || index < -this.size()) {
@@ -272,15 +272,16 @@ public class IntDList {
      * System.out.println(a); //prints ab
      */
     public String toString() {
-        // FIXME: Implement this method to return correct value
-        DNode node = this._front;
-        String str = "";
-        if (this.size() == 0) {
-            return null;
+
+        if (size() == 0) {
+            return "[]";
         }
-        while (node._next != null) {
-            str += node._val;
+        String str = "[";
+        DNode curr = _front;
+        for (; curr._next != null; curr = curr._next) {
+            str += curr._val + ", ";
         }
+        str += curr._val +"]";
         return str;
     }
 
