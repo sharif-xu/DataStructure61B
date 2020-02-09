@@ -1,3 +1,5 @@
+import java.awt.dnd.DnDConstants;
+
 /**
  * Scheme-like pairs that can be used to form a list of integers.
  *
@@ -59,12 +61,7 @@ public class IntDList {
                 current_node = current_node._next;
                 count++;
             }
-<<<<<<< HEAD
-            return count;
-
-=======
         return count;
->>>>>>> ecfb97957cd7ca6d2cbda2e864e6a84ab60835d6
     }
 
     /**
@@ -79,27 +76,6 @@ public class IntDList {
      */
     public int get(int i) {
         // FIXME: Implement this method and return correct value
-<<<<<<< HEAD
-        if (i == 0) {
-            return this._front._val;
-        }
-        if (i > 0) {
-            DNode current_node = this._front;
-            while (i > 0) {
-                current_node = current_node._next;
-                i--;
-            }
-            return current_node._val;
-        }
-        else {
-            DNode current_node = this._back;
-            while (i < -1) {
-                current_node = current_node._prev;
-                i++;
-            }
-            return current_node._val;
-        }
-=======
         if (i > 0) {
             DNode node = this._front;
             while (i > 0) {
@@ -117,7 +93,6 @@ public class IntDList {
             return node._val;
         }
         return (this._front._val);
->>>>>>> ecfb97957cd7ca6d2cbda2e864e6a84ab60835d6
     }
 
     /**
@@ -132,22 +107,17 @@ public class IntDList {
         }
         else {
             node._next = this._front;
+            assert this._front != null;
             this._front._prev = node;
             this._front = node;
         }
     }
 
-
-
     /**
      * @param d value to be inserted in the back
      */
     public void insertBack(int d) {
-<<<<<<< HEAD
-        // FIXME: Implement this method
-=======
         // FIXME: Implement this `method`
->>>>>>> ecfb97957cd7ca6d2cbda2e864e6a84ab60835d6
         DNode node = new DNode(d);
         if (this._front == null && this._back == null) {
             this._front = node;
@@ -158,10 +128,6 @@ public class IntDList {
             this._back._next=node;
             this._back=node;
         }
-<<<<<<< HEAD
-
-=======
->>>>>>> ecfb97957cd7ca6d2cbda2e864e6a84ab60835d6
     }
 
     /**
@@ -177,73 +143,25 @@ public class IntDList {
      */
     public void insertAtIndex(int d, int index) {
         // FIXME: Implement this method
-<<<<<<< HEAD
-        DNode insert_node = new DNode(d);
-        if ( index == 0 || (-1)*index == (this.size()+1) ) {
-            insertFront(d);
-        }
-        if ( index == -1 || index == this.size() ) {
-            insertBack(d);
-        }
-
-        if (index > 0) {
-            DNode current_node = this._front;
-            while (index > 0) {
-                current_node = current_node._next;
-                index--;
-            }
-            insert_node._next = current_node._next;
-            current_node._prev._next = insert_node;
-
-        }
-        else {
-            DNode current_node = this._back;
-            while (index < -1) {
-                current_node = current_node._prev;
-                index++;
-            }
-            insert_node._next = current_node._next;
-            current_node._prev._next = insert_node;
-=======
-        DNode node = new DNode(d);
-        if (this.size() == 0) {
-            insertFront(d);
-        }
+        DNode insertnode = new DNode(d);
         if (index == 0) {
-            insertFront(d);
+            this.insertFront(d);
         }
-        else if (index == -1) {
-            insertBack(d);
-        }
-        else if (index > 0) {
-            node = this._front;
-            while (index > 1 && node._next != null) {
-                node = node._next;
-                index -= 1;
+        if (index > 0) {
+            if(this.size()==index){
+                this.insertBack(d);
             }
-            if (node._next != null) {
-                node._prev._next = node;
-                node._prev = node;
-                node._next._prev = node;
-                node._next = node._next._next;
-            }
-            else {
-                insertBack(d);
+            else { //index < size 的情况，不考虑 index > size的非法用例
+                DNode countnode = this._front;
+                while(index > 0) {
+                    countnode = countnode._next;
+                    index--;
+                }//找到当前list的index位节点，将insertnode在countnode之前插入
+                countnode._prev._next=insertnode;
+                insertnode._next=countnode;
             }
         }
-        else if (index < -1) {
-            node = this._back;
-            while (index > -1 && node._prev != null) {
-                node = node._prev;
-                index += 1;
-            }
-            if (node._prev != null) {
-                node._next._prev = node;
-                node._next = node;
-                node._prev._next = node;
-                node._prev = node._prev._prev;
-            }
->>>>>>> ecfb97957cd7ca6d2cbda2e864e6a84ab60835d6
+        else {// index < 0
         }
     }
 
@@ -265,7 +183,6 @@ public class IntDList {
         }
         return value;
     }
-
 
     /**
      * Removes the last item in the IntDList and returns it.
@@ -301,43 +218,14 @@ public class IntDList {
         // FIXME: Implement this method and return correct value
         int value = 0;
         if (this.size() > 0) {
-<<<<<<< HEAD
-            if (index == 0 || ((-1)*index-1) == this.size()) {
-                value = deleteFront();
-            }
-            else if (index == -1 || (index == this.size())) {
-=======
             if (index == 0 || index < -this.size()) {
                 value = deleteFront();
             }
             else if (index == -1 || index >= this.size()) {
->>>>>>> ecfb97957cd7ca6d2cbda2e864e6a84ab60835d6
                 value = deleteBack();
             }
             else if (index > 0) {
                 DNode d = this._front;
-<<<<<<< HEAD
-                while (index > 0) {
-                    d = d._next;
-                    index --;
-                }
-                value = d._val;
-                d._prev._next = d._next;
-                d._next._prev = d._prev;
-                d._prev = d._next = null;
-            }
-            else {
-                /* index < -1 */
-                DNode d = this._back;
-                while (index < -1) {
-                    d = d._prev;
-                    index ++;
-                }
-                value = d._val;
-                d._prev._next = d._next;
-                d._next._prev = d._prev;
-                d._prev = d._next = null;
-=======
                 while (index > 0 && d._next != null) {
                     d = d._next;
                     index -= 1;
@@ -367,7 +255,6 @@ public class IntDList {
                 else {
                     value = deleteFront();
                 }
->>>>>>> ecfb97957cd7ca6d2cbda2e864e6a84ab60835d6
             }
         }
         else {
@@ -375,7 +262,6 @@ public class IntDList {
         }
         return value;
     }
-
 
     /**
      * @return a string representation of the IntDList in the form
