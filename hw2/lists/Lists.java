@@ -23,25 +23,25 @@ class Lists {
 
     static IntListList naturalRuns(IntList L) {
         IntListList result = new IntListList();
-        IntListList result_begin = result;
-        IntList s_list = L;
+        IntListList resultBegin = result;
+        IntList sList = L;
         IntList temp = L;
         int count =  0;
-        int is_ascend = 0;
-        while (s_list != null) {
-            temp = s_list;
+        int isAscend = 0;
+        while (sList != null) {
+            temp = sList;
             while (temp != null) {
                 if (temp.tail != null) {
                     if (temp.head < temp.tail.head) {
-                        is_ascend = 1;  //show that the sublist is ascending
+                        isAscend = 1;  //show that the sublist is ascending
                         count++;
                     } else {
-                        is_ascend = 0;
+                        isAscend = 0;
                         count++;
                         break;
                     }
                 } else {
-                    if (is_ascend == 1) {
+                    if (isAscend == 1) {
                         count++;    // the last element in the list is still ascending
                         break;
                     } else {
@@ -51,23 +51,24 @@ class Lists {
                 }
                 temp = temp.tail;
             }
-            int[] temp_arr = new int[count]; //use to store one ascending list in the loop
-            for (int i = 0; i < count ; i++) {
-                temp_arr[i] = s_list.head;
-                s_list = s_list.tail;
+            int[] tempArr = new int[count]; //use to store one ascending list in the loop
+            for (int i = 0; i < count; i++) {
+                tempArr[i] = sList.head;
+                sList = sList.tail;
             }
             count = 0; // for every loop reset count
-            IntList transfer = IntList.list(temp_arr); //transfer the array to IntList, which fits in the IntListList.head
-            if (s_list != null) {
-                IntListList list_shell = new IntListList();
+            IntList transfer = IntList.list(tempArr);
+            //transfer the array to IntList, which fits in the IntListList.head
+            if (sList != null) {
+                IntListList listShell = new IntListList();
                 result.head = transfer;
-                result.tail = list_shell;
+                result.tail = listShell;
                 result = result.tail;
             } else {
                 result.head = transfer;
                 result.tail = null;
             }
         }
-        return result_begin;
+        return resultBegin;
     }
 }

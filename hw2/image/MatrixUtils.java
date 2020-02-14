@@ -55,7 +55,45 @@ public class MatrixUtils {
      */
 
     public static double[][] accumulateVertical(double[][] m) {
-        return null; //your code here
+        double leftTop = 0, rightTop = 0, top = 0, min = 0;
+        double[][] am = new double[m.length][m[0].length];
+        for (int i = 0; i < m[0].length; i++) {
+            am[0][i] = getEnergy(m, 0, i);
+        } // Initialize the first row of the am[][]
+        for (int i = 1; i < m.length; i++) {
+            for (int j = 0; j < m[0].length; j++) {
+                leftTop = getEnergy(am, i - 1, j - 1);
+                rightTop = getEnergy(am, i - 1, j + 1);
+                top = getEnergy(am, i - 1, j);
+                min = top;
+                if (rightTop < min) {
+                    min = rightTop;
+                }
+                if (leftTop < min) {
+                    min = leftTop;
+                }
+                am[i][j] = getEnergy(m, i, j) + min;
+            }
+        }
+        return am;
+    }
+
+    static double getEnergy(double[][] e, int row, int column) {
+        int width = e[0].length;
+        int height = e.length;
+        double energy = 0;
+        if (row < 0 || row >= height || column < 0 || column >= width) {
+            return Double.POSITIVE_INFINITY;
+        } else {
+            for (int i = 0; i < height; i++) {
+                for (int j = 0; j < width; j++) {
+                    if ((i == row) && (column == j)) {
+                        energy = e[i][j];
+                    }
+                }
+            }
+        }
+        return energy;
     }
 
     /** Non-destructively accumulates a matrix M along the specified
@@ -82,7 +120,24 @@ public class MatrixUtils {
      */
 
     public static double[][] accumulate(double[][] m, Orientation orientation) {
-        return null; //your code here
+        double[][] am = new double[m.length][m[0].length];
+        if (orientation == Orientation.VERTICAL) {
+            am = accumulateVertical(am);
+        } else {
+            am = accumulateVertical(transpose(m));
+            am = transpose(am);
+        }
+        return am;
+    }
+
+    static double[][] transpose(double[][] m) {
+        double[][] transposeMatrix = new double[m[0].length][m.length];
+        for (int i = 0; i < m[0].length; i++) {
+            for (int j = 0; j < m.length; j++) {
+                transposeMatrix[i][j] = m[j][i];
+            }
+        }
+        return transposeMatrix;
     }
 
     /** Finds the vertical seam VERTSEAM of the given matrix M.
@@ -115,7 +170,29 @@ public class MatrixUtils {
      */
 
     public static int[] findVerticalSeam(double[][] m) {
-        return null; //your code here
+        int[] array = new int[m.length];
+        double leftBottom = 0, rightBottom = 0, bottom = 0;
+        double min = 0;
+        int index = -1;
+        array[0] = 1;
+        for (int i = 1; i < m.length; i++) {
+            int j = array[i - 1];
+            leftBottom = getEnergy(m, i, j - 1);
+            rightBottom = getEnergy(m, i, j + 1);
+            bottom = getEnergy(m, i, j);
+            min = leftBottom;
+            index = j - 1;
+            if (rightBottom < min) {
+                min = rightBottom;
+                index = j + 1;
+            }
+            if (bottom < min) {
+                min = bottom;
+                index = j;
+            }
+            array[i] = index;
+        }
+        return array;
     }
 
     /** Returns the SEAM of M with the given ORIENTATION.
@@ -124,7 +201,16 @@ public class MatrixUtils {
      */
 
     public static int[] findSeam(double[][] m, Orientation orientation) {
-        return null; //your code here
+        int[] array = new int[0];
+        if (orientation == Orientation.VERTICAL) {
+            array = new int[m.length];
+            array = findVerticalSeam(m);
+        }
+        if (orientation == Orientation.HORIZONTAL) {
+            array = new int[m[0].length];
+            array = findVerticalSeam(transpose(m));
+        }
+        return array;
     }
 
     /** does nothing. ARGS not used. use for whatever purposes you'd like */
