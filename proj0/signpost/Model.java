@@ -7,8 +7,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Arrays;
 
-import static signpost.Place.pl;
-import static signpost.Place.PlaceList;
+import static signpost.Place.*;
 import static signpost.Utils.*;
 
 /** The state of a Signpost puzzle.  Each cell has coordinates (x, y),
@@ -262,8 +261,24 @@ class Model implements Iterable<Model.Sq> {
      *  successor, or 0 if it has none. */
     private int arrowDirection(int x, int y) {
         int seq0 = _solution[x][y];
-        // FIXME
-        return 0;
+        int size = _width*_height;
+        int seq1 = seq0 + 1;
+        int nextX = 0, nextY = 0;
+        if (seq1 > size) {
+            return 0;
+        } else {
+            for (int i = 0; i < _width; i++) {
+                for (int j = 0; j < _height; j++) {
+                    if (seq1 == _solution[i][j]) {
+                        nextX = i;
+                        nextY = j;
+                        break;
+                    }
+                }
+            }
+            int dir = dirOf(x, y, nextX, nextY);
+            return dir;
+        }
     }
 
     /** Return a new, currently unused group number > 0.  Selects the
@@ -509,18 +524,39 @@ class Model implements Iterable<Model.Sq> {
             return _predecessors;
         }
 
-        /** Returns true iff this square may be connected to square S1, that is:
-         *  + S1 is in the correct direction from this square.
-         *  + S1 does not have a current predecessor, this square does not
-         *    have a current successor, S1 is not the first cell in sequence,
-         *    and this square is not the last.
-         *  + If S1 and this square both have sequence numbers, then
-         *    this square's is sequenceNum() == S1.sequenceNum() - 1.
-         *  + If neither S1 nor this square have sequence numbers, then
-         *    they are not part of the same connected sequence.
-         */
         boolean connectable(Sq s1) {
-            // FIXME
+            int size = _width * _height;
+            Sq s1Pred = s1._predecessor;
+            Sq thisSuc = this._successor;
+            if (this._dir != dirOf(this.x, this.y, s1.x, s1.y)) {
+                return  false;  //not in the same direction
+            }
+            /**  S1 does not have a current predecessor, this square does not
+             *  have a current successor, S1 is not the first cell in sequence,
+             *  and this square is not the last.
+             */
+            if (s1Pred != null || thisSuc != null || s1._sequenceNum == 1 || this._sequenceNum == size) {
+                return false;
+
+            }
+            /**
+             *  If S1 and this square both have sequence numbers, then
+             *  this square's is sequenceNum() == S1.sequenceNum() - 1.
+             */
+            if (this._sequenceNum != 0 && s1._sequenceNum!=0) {
+                if (this._sequenceNum != s1._sequenceNum - 1 ) {
+                    return false;
+                }
+            }
+            /**
+             *  + If neither S1 nor this square have sequence numbers, then
+             *    they are not part of the same connected sequence.
+             */
+            if (this._sequenceNum == 0 && s1._sequenceNum == 0) {
+                if (this._group != -1 && s1._group!=-1 && this._group == s1._group) {
+                    return  false;
+                }
+            }
             return true;
         }
 
@@ -531,26 +567,68 @@ class Model implements Iterable<Model.Sq> {
             if (!connectable(s1)) {
                 return false;
             }
-            int sgroup = s1.group();
 
+            // + Set this square's _successor field and S1's
+            //    _predecessor field.
+            int sgroup = s1.group();
+            int tgroup = this.group();
+            this._successor = s1;
+            s1._predecessor = this;
             _unconnected -= 1;
 
-            // FIXME: Connect this square to its successor:
-            //        + Set this square's _successor field and S1's
-            //          _predecessor field.
-            //        + If this square has a number, number all its successors
-            //          accordingly (if needed).
-            //        + If S1 is numbered, number this square and its
-            //          predecessors accordingly (if needed).
-            //        + Set the _head fields of this square's successors this
-            //          square's _head.
-            //        + If either of this square or S1 used to be unnumbered
-            //          and is now numbered, release its group of whichever
-            //          was unnumbered, so that it can be reused.
-            //        + If both this square and S1 are unnumbered, set the
-            //          group of this square's head to the result of joining
-            //          the two groups.
+            // + If this square has a number, number all its successors
+            //   accordingly (if needed).
+            int thisNum = this._sequenceNum;
+            Sq thisSuc = this.successor();
+            if (thisNum != 0 ) {
+                while (thisSuc != null) {
+                    thisNum++;
+                    thisSuc._sequenceNum = thisNum;
+                    thisSuc = thisSuc._successor;
+                }
+            }
 
+            // + If S1 is numbered, number this square and its
+            //   predecessors accordingly (if needed).
+            int s1Num = s1._sequenceNum;
+            Sq s1Pre = s1._predecessor;
+            if (s1Num != 0) {
+                while (s1Pre != null) {
+                    s1Num--;
+                    s1Pre._sequenceNum = s1Num;
+                    s1Pre = s1Pre._predecessor;
+                }
+            }
+
+            // + Set the _head fields of this square's successors this
+            //   square's _head.
+            Sq headSqSuc = this._head._successor;
+            while (headSqSuc != null) {
+                headSqSuc._head = this._head;
+                headSqSuc = headSqSuc._successor;
+            }
+
+            // + If either of this square or S1 used to be unnumbered
+            //   and is now numbered, release its group of whichever
+            //   was unnumbered, so that it can be reused.
+            if (tgroup == -1 || sgroup == -1) {
+                if (this._sequenceNum != 0) {
+                    releaseGroup(this._group);
+                    this._group = 0;
+                }
+                if (s1._sequenceNum != 0) {
+                    releaseGroup(s1._group);
+                    s1._group = 0;
+                }
+            }
+
+            // + If both this square and S1 are unnumbered, set the
+            //   group of this square's head to the result of joining
+            //   the two groups.
+            if (this._sequenceNum == 0 && s1._sequenceNum == 0) {
+                int i = joinGroups(this._group, s1._group);
+                this._group = s1._group = i;
+            }
             return true;
         }
 
@@ -563,28 +641,93 @@ class Model implements Iterable<Model.Sq> {
             _unconnected += 1;
             next._predecessor = _successor = null;
             if (_sequenceNum == 0) {
-                // FIXME: If both this and next are now one-element groups,
-                //        release their former group and set both group
-                //        numbers to -1.
-                //        Otherwise, if either is now a one-element group, set
-                //        its group number to -1 without releasing the group
-                //        number.
-                //        Otherwise, the group has been split into two multi-
-                //        element groups.  Create a new group for next.
-            } else {
-                // FIXME: If neither this nor any square in its group that
-                //        precedes it has a fixed sequence number, set all
-                //        their sequence numbers to 0 and create a new group
-                //        for them if this has a current predecessor (other
-                //        set group to -1).
-                // FIXME: If neither next nor any square in its group that
-                //        follows it has a fixed sequence number, set all
-                //        their sequence numbers to 0 and create a new
-                //        group for them if next has a current successor
-                //        (otherwise set next's group to -1.)
+                Sq tSuc = this._successor; Sq tPre = this._predecessor;
+                Sq nSuc = next._successor; Sq nPre = next._predecessor;
+                if (tSuc == null && tPre == null && nSuc == null && nPre == null) {
+                    releaseGroup(this._group);
+                    releaseGroup(next._group);
+                    this._group = next._group = -1;
+                    //  If both this and next are now one-element groups,
+                    //  release their former group and set both group
+                    //  numbers to -1.
+                } else if ((tPre == null && tSuc == null) || (nSuc == null && nPre == null)) {
+                    this._group = next._group = -1;
+                    //  Otherwise, if either is now a one-element group, set
+                    //  its group number to -1 without releasing the group number.
+                } else {
+                    next._group = newGroup();
+                    //  Otherwise, the group has been split into two multi-
+                    //  element groups.  Create a new group for next.
+                }
             }
-            // FIXME: Set the _head of next and all squares in its group to
-            //        next.
+            // If neither this nor any square in its group that
+            // precedes it has a fixed sequence number, set all
+            // their sequence numbers to 0 and create a new group
+            // for them if this has a current predecessor (other
+            // set group to -1).
+            else {
+                Sq temp1 = this;
+                int flag = 1;
+                while (temp1 != null) {
+                    if (temp1._hasFixedNum) {
+                        flag = 0;
+                        break;
+                    }
+                    temp1 = temp1._predecessor;
+                }
+                Sq temp2 = this;
+                if (flag != 0) {
+                    if (this._predecessor != null) {
+                        int i = newGroup();
+                        while (temp2 != null) {
+                            temp2._sequenceNum = 0;
+                            temp2._group = i;
+                            temp2 = temp2._predecessor;
+                        }
+                    } else {
+                        this._group = -1;
+                        this._sequenceNum = 0;
+                    }
+                }
+                // If neither next nor any square in its group that
+                // follows it has a fixed sequence number, set all
+                // their sequence numbers to 0 and create a new
+                // group for them if next has a current successor
+                // (otherwise set next's group to -1.)
+                flag = 1; Sq temp3 = next;
+                while (temp3 != null) {
+                    if (temp3._hasFixedNum) {
+                        flag = 0;
+                        break;
+                    }
+                    temp3 = temp3._successor;
+                }
+                Sq temp4 = next;
+                if (flag != 0) { // don't have fixed number
+                    while (temp4 != null) {
+                        temp4._hasFixedNum = false;
+                        temp4._sequenceNum = 0;
+                        if (next._successor != null) {
+                            if (flag == 1) {
+                                int i = newGroup();
+                                next._group = i;
+                                flag = 0;
+                            }
+                        } else {
+                            next._group = -1;
+                        }
+                        temp4 = temp4._successor;
+                    }
+                }
+            }
+            //  Set the _head of next and all squares in its group to
+            //  next.
+            next._head = next;
+            Sq temp5 = next._successor;
+            while (temp5 != null) {
+                temp5._head = next._head;
+                temp5 = temp5._successor;
+            }
         }
 
         @Override

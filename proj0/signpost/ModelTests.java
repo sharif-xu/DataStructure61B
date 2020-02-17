@@ -101,6 +101,11 @@ public class ModelTests {
     }
 
     @Test
+    public void arrowDirectionTest() {
+        //FIXME :write the arrowDirection test.
+    }
+
+    @Test
     public void allPlacesTest() {
         Model model = new Model(tr(SOLN2));
         for (Sq sq : model) {
