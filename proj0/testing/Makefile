@@ -58,16 +58,27 @@ clean:
 # Regenerate .std files.
 outputs: 
 	"$(MAKE)" -C ..
-	@for inp in $(TESTS); do \
-	    out=$$(basename $$inp .in).std; \
-	    echo -n $$inp "=>" $$out; \
-	    $(RM) $$out.tmp; \
-	    CLASSPATH=..:$(CLASSPATH) \
-               java $(JFLAGS) $(MAIN) --testing --no-display \
-		   < $$inp > $$out.tmp; \
-            if [ -f $$out ] && cmp -s $$out $$out.tmp; then \
-	        $(RM) $$out.tmp; echo; \
-	    else \
-	        mv $$out.tmp $$out; echo " (changed)"; \
-	    fi; \
-	done
+			@for inp in $(TESTS); do \
+				out=$$(basename $$inp .in).std; \
+				echo -n $$inp "=>" $$out; \
+				$(RM) $$out.tmp; \
+				CLASSPATH=..:$(CLASSPATH) \
+					   java $(JFLAGS) $(MAIN) --testing --no-display \
+				   < $$inp > $$out.tmp; \
+					if [ -f $$out ] && cmp -s $$out $$out.tmp; then \
+					$(RM) $$out.tmp; echo; \
+				else \
+					mv $$out.tmp $$out; echo " (changed)"; \
+				fi; \
+			done
+
+student_outputs:
+				"$(MAKE)" -C ..
+				@for inp in $(TESTS); do \
+					stud=$$(basename $$inp .in)_stud.std; \
+					echo -n $$inp "=>" $$stud; \
+					CLASSPATH=..:$(CLASSPATH) \
+						   java $(JFLAGS) $(MAIN) --testing --no-display \
+		drgit			   < $$inp > $$stud; \
+					   echo;\
+				done
