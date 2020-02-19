@@ -103,7 +103,7 @@ class Place {
                     for (int y1 = 0; y1 < height; y1 += 1) {
                         int dir = dirOf(x0, y0, x1, y1);
                         Place p = pl(x1, y1);
-                        if(dir!=0) {
+                        if (dir != 0) {
                             places0[dir].add(p);
                             places0[0].add(p);
                         }
@@ -144,6 +144,5 @@ class Place {
 
     /** Places already generated. */
     private static Place[][] _places = new Place[10][10];
-
 
 }
