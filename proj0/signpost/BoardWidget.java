@@ -16,7 +16,7 @@ import static signpost.Place.pl;
 import signpost.Model.Sq;
 
 /** A widget that displays a Signpost puzzle.
- *  @author
+ *  @author Jilin He
  */
 class BoardWidget extends Pad {
 
@@ -303,7 +303,6 @@ class BoardWidget extends Pad {
     void update(Model model) {
         synchronized (this) {
             _model = new Model(model);
-            _model = model;  // FIXME: Remove this line.
             _dirBump = 0;
         }
 
