@@ -7,14 +7,16 @@ public class ColumnMatchFilter extends TableFilter {
 
     public ColumnMatchFilter(Table input, String colName1, String colName2) {
         super(input);
-        // FIXME: Add your code here.
+        this._colNum1 = input.colNameToIndex(colName1);
+        this._colNum2 = input.colNameToIndex(colName2);
     }
 
     @Override
     protected boolean keep() {
-        // FIXME: Replace this line with your code.
-        return false;
+        return _next.getValue(_colNum1).equals(_next.getValue(_colNum2));
     }
 
-    // FIXME: Add instance variables?
+    private int _colNum1;
+    private int _colNum2;
+
 }

@@ -1,3 +1,5 @@
+import java.awt.color.ICC_ProfileRGB;
+
 /**
  * TableFilter to filter for entries greater than a given string.
  *
@@ -7,14 +9,15 @@ public class GreaterThanFilter extends TableFilter {
 
     public GreaterThanFilter(Table input, String colName, String ref) {
         super(input);
-        // FIXME: Add your code here.
+        _colNum = input.colNameToIndex(colName);
+        this._ref = ref;
     }
 
     @Override
     protected boolean keep() {
-        // FIXME: Replace this line with your code.
-        return false;
+       return _next.getValue(_colNum).compareTo(_ref) > 0;
     }
 
-    // FIXME: Add instance variables?
+    private int _colNum;
+    private String _ref;
 }
