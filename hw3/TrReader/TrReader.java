@@ -12,12 +12,36 @@ public class TrReader extends Reader {
      *  FROM.charAt(i) to TO.charAt(i), for all i, leaving other characters
      *  in STR unchanged.  FROM and TO must have the same length. */
     public TrReader(Reader str, String from, String to) {
-        // TODO: YOUR CODE HERE
+        _str = str;
+        _from = from;
+        _to = to;
     }
 
-    /* TODO: IMPLEMENT ANY MISSING ABSTRACT METHODS HERE
-     * NOTE: Until you fill in the necessary methods, the compiler will
-     *       reject this file, saying that you must declare TrReader
-     *       abstract. Don't do that; define the right methods instead!
-     */
+    @Override
+    public int read(char buf[]) throws IOException {
+        return read(buf, 0, buf.length);
+    }
+
+    @Override
+    public int read(char[] cbuf, int off, int len) throws IOException{
+        int temp = _str.read(cbuf, off, len);
+        for (int i = off; i < temp; i++) {
+            for (int j = 0; j < _from.length(); j++) {
+                if (cbuf[i] == _from.charAt(j)) {
+                    cbuf[i] = _to.charAt(j);
+                    break;
+                }
+            }
+        }
+        return temp;
+    }
+
+    @Override
+    public void close() throws IOException {
+        _str.close();
+    }
+
+    private Reader _str;
+    private String _from;
+    private String _to;
 }
