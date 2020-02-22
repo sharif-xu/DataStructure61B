@@ -28,6 +28,7 @@ public class TrReaderTest {
     @Test
     public void testSource() throws IOException {
         Reader r = makeStringReader(new FileReader("TrReaderTest.java"), 4096);
+        //FIXME: remove the file address change before submit.
 
         TrReader trR = new TrReader(r, "import jav.", "josh hug___");
         char[] cbuf = new char[250];
@@ -35,6 +36,14 @@ public class TrReaderTest {
         assertEquals(250, trR.read(cbuf));
         String result = new String(cbuf);
         assertEquals(TRANSLATION.substring(0, 250), result);
+    }
+
+    @Test
+    public void testTranslate() throws IOException {
+        Translate test = new Translate();
+        String result = test.translate("apple","abcd","efgh");
+        assertEquals("epple", result);
+
     }
 
     /** Return a StringReader that contains the contents delivered by R,
