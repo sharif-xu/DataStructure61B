@@ -3,7 +3,7 @@ import java.io.IOException;
 
 /** Translating Reader: a stream that is a translation of an
  *  existing reader.
- *  @author your name here
+ *  @author Ruize Xu
  */
 public class TrReader extends Reader {
     /** A new TrReader that produces the stream of characters produced
@@ -23,14 +23,11 @@ public class TrReader extends Reader {
     }
 
     @Override
-    public int read(char[] cbuf, int off, int len) throws IOException{
-        int temp = _str.read(cbuf, off, len);
-        for (int i = off; i < temp; i++) {
-            for (int j = 0; j < _from.length(); j++) {
-                if (cbuf[i] == _from.charAt(j)) {
-                    cbuf[i] = _to.charAt(j);
-                    break;
-                }
+    public int read(char[] buf, int offset, int len) throws IOException {
+        int temp = _str.read(buf, offset, len);
+        for(int i = 0;i<buf.length;i++){
+            if(_from.indexOf(buf[i])!=-1){
+                buf[i] = _to.charAt(_from.indexOf(buf[i]));
             }
         }
         return temp;
