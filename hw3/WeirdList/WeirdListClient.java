@@ -1,14 +1,19 @@
+import net.sf.saxon.expr.Component;
+
 /** Functions to increment and sum the elements of a WeirdList. */
 class WeirdListClient {
 
     /** Return the result of adding N to each element of L. */
     static WeirdList add(WeirdList L, int n) {
-        return null; // TODO: REPLACE THIS LINE
+        MyAdd temp = new MyAdd(n);
+        return L.map(temp);
     }
 
     /** Return the sum of all the elements in L. */
     static int sum(WeirdList L) {
-        return 0; // TODO: REPLACE THIS LINE
+        MySum temp = new MySum();
+        L.map(temp);
+        return temp.getSum();
     }
 
     /* IMPORTANT: YOU ARE NOT ALLOWED TO USE RECURSION IN ADD AND SUM
