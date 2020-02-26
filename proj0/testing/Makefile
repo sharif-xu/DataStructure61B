@@ -47,6 +47,7 @@ CPATH = "..:$(CLASSPATH):;..;$(CLASSPATH)"
 # The "CLASSPATH=..." clause in front of the command below temporarily 
 # changes the location in which Java searches for classes to be the directory
 # that contains your project.
+#
 check: 
 	@echo "Testing application $(MAIN)..."
 	@CLASSPATH=$(CPATH) $(PYTHON) tester.py $(TESTER_FLAGS) $(TESTS)
