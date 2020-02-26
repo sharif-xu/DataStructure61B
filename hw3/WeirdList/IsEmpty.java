@@ -1,4 +1,3 @@
-import java.lang.ref.WeakReference;
 
 public class IsEmpty extends WeirdList{
 

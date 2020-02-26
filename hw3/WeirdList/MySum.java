@@ -1,3 +1,7 @@
+/** An help class to implement the Interface
+ * IntUnaryFunction apply to sum up
+ *  @author Ruize Xu
+ */
 public class MySum implements IntUnaryFunction{
     private int sum;
 

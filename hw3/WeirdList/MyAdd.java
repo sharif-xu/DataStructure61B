@@ -1,3 +1,7 @@
+/** An help class to implement the Interface
+ * IntUnaryFunction apply to do the adding operation
+ *  @author Ruize Xu
+ */
 public class MyAdd implements IntUnaryFunction {
     private int _input;
 

@@ -1,5 +1,5 @@
 /** A WeirdList holds a sequence of integers.
- * @author your name here
+ * @author Ruize Xu
  */
 public class WeirdList {
     private int _head;
