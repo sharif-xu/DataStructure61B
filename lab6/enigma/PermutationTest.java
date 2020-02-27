@@ -117,10 +117,10 @@ public abstract class PermutationTest {
         assertEquals('B',p.permute('D'));
     }
     @Test
-    public void testModule() {
+    public void testModuleOverBound() {
         Permutation p = getNewPermutation("(BACD)", getNewAlphabet("ABCD"));
         assertEquals(2, p.permute(8));
-        assertEquals(0, p.invert(8));
+        assertEquals(1, p.invert(8));
     }
 
 }
