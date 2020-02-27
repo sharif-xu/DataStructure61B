@@ -142,7 +142,7 @@ public abstract class PermutationTest {
     public void testExtra1() {
         Permutation p = getNewPermutation("(DAG) (CS) (O)", getNewAlphabet("ACSGOD"));
         assertEquals('A',p.invert('G'));
-        assertEquals(3, p.invert(2));
+        assertEquals(1, p.invert(2));
     }
     @Test
     public  void testExtra2() {
