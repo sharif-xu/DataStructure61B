@@ -106,7 +106,7 @@ public abstract class PermutationTest {
 
     @Test
     public void testPermuteInt() {
-        Permutation p = getNewPermutation("(BACD)", getNewAlphabet("(ABCD)"));
+        Permutation p = getNewPermutation("(BACD)", getNewAlphabet("ABCD"));
         assertEquals(2, p.permute(0));
     }
 
