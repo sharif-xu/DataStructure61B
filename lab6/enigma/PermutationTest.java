@@ -93,34 +93,41 @@ public abstract class PermutationTest {
 
     @Test
     public void testInvertChar() {
-        Permutation p = getNewPermutation("(BACD)", getNewAlphabet("ABCD"));
-        assertEquals('B', p.invert('A'));
-        assertEquals('D',p.invert('B'));
+        Permutation p = getNewPermutation("(AELTPHQXRU) (BKNW) (CMOY) (DFG) (IV) (JZ) (S)", getNewAlphabet());
+        assertEquals('U', p.invert('A'));
+        assertEquals('W',p.invert('B'));
+        assertEquals('Y',p.invert('C'));
+
     }
     @Test
     public void testInvertInt() {
-        Permutation p = getNewPermutation("(BACD)", getNewAlphabet("ABCD"));
-        assertEquals(3,p.invert(1));
-        assertEquals(2,p.invert(3));
+        Permutation p = getNewPermutation("(AELTPHQXRU) (BKNW) (CMOY) (DFG) (IV) (JZ) (S)", getNewAlphabet());
+        assertEquals(20,p.invert(0));
+        assertEquals(22,p.invert(1));
+        assertEquals(24,p.invert(2));
     }
 
     @Test
     public void testPermuteInt() {
-        Permutation p = getNewPermutation("(BACD)", getNewAlphabet("ABCD"));
-        assertEquals(2, p.permute(0));
+        Permutation p = getNewPermutation("(AELTPHQXRU) (BKNW) (CMOY) (DFG) (IV) (JZ) (S)", getNewAlphabet());
+        assertEquals(4, p.permute(0));
+        assertEquals(10, p.permute(1));
+        assertEquals(2, p.permute(25));
+        assertEquals(3, p.permute(6));
     }
 
     @Test
     public void testPermuteChar() {
-        Permutation p = getNewPermutation("(BACD)", getNewAlphabet("ABCD"));
-        assertEquals('C', p.permute('A'));
-        assertEquals('B',p.permute('D'));
+        Permutation p = getNewPermutation("(AELTPHQXRU) (BKNW) (CMOY) (DFG) (IV) (JZ) (S)", getNewAlphabet());
+        assertEquals('E', p.permute('A'));
+        assertEquals('K',p.permute('B'));
+        assertEquals('C',p.permute('Y'));
+        assertEquals('D',p.permute('G'));
     }
     @Test
     public void testModuleOverBound() {
-        Permutation p = getNewPermutation("(BACD)", getNewAlphabet("ABCD"));
-        assertEquals(2, p.permute(8));
-        assertEquals(1, p.invert(8));
+        Permutation p = getNewPermutation("(AELTPHQXRU) (BKNW) (CMOY) (DFG) (IV) (JZ) (S)", getNewAlphabet());
+        assertEquals(4, p.permute(26));
+        assertEquals(22, p.invert(27));
     }
-
 }
