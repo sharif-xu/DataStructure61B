@@ -100,7 +100,7 @@ public abstract class PermutationTest {
     @Test
     public void testInvertInt() {
         Permutation p = getNewPermutation("(BACD)", getNewAlphabet("ABCD"));
-        assertEquals('3',p.invert(1));
+        assertEquals(3,p.invert(1));
         assertEquals(2,p.invert(3));
     }
 
@@ -114,7 +114,7 @@ public abstract class PermutationTest {
     public void testPermuteChar() {
         Permutation p = getNewPermutation("(BACD)", getNewAlphabet("(ABCD)"));
         assertEquals('C', p.permute('A'));
-        assertEquals('B','D');
+        assertEquals('B',p.permute('D'));
 
     }
 
