@@ -95,14 +95,27 @@ public abstract class PermutationTest {
     public void testInvertChar() {
         Permutation p = getNewPermutation("(BACD)", getNewAlphabet("ABCD"));
         assertEquals('B', p.invert('A'));
-        assertEquals('3',p.invert(1));
         assertEquals('D',p.invert('B'));
+    }
+    @Test
+    public void testInvertInt() {
+        Permutation p = getNewPermutation("(BACD)", getNewAlphabet("ABCD"));
+        assertEquals('3',p.invert(1));
+        assertEquals(2,p.invert(3));
     }
 
     @Test
     public void testPermuteInt() {
         Permutation p = getNewPermutation("(BACD)", getNewAlphabet("(ABCD)"));
-        assertEquals(1, p.permute(0));
+        assertEquals(2, p.permute(0));
+    }
+
+    @Test
+    public void testPermuteChar() {
+        Permutation p = getNewPermutation("(BACD)", getNewAlphabet("(ABCD)"));
+        assertEquals('C', p.permute('A'));
+        assertEquals('B','D');
+
     }
 
 }
