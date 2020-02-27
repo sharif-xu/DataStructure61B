@@ -112,7 +112,7 @@ public abstract class PermutationTest {
         Permutation p = getNewPermutation("(AELTPHQXRU) (BKNW) (CMOY) (DFG) (IV) (JZ) (S)", getNewAlphabet());
         assertEquals(4, p.permute(0));
         assertEquals(10, p.permute(1));
-        assertEquals(2, p.permute(25));
+        assertEquals(9, p.permute(25));
         assertEquals(3, p.permute(6));
     }
 
