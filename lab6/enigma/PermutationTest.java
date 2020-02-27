@@ -138,4 +138,16 @@ public abstract class PermutationTest {
         assertEquals('A', p.permute('A'));
         assertEquals(0, p.permute(0));
     }
+    @Test
+    public void testExtra1() {
+        Permutation p = getNewPermutation("(DAG) (CS) (O)", getNewAlphabet("ACSGOD"));
+        assertEquals('A',p.invert('G'));
+        assertEquals(3, p.invert(2));
+    }
+    @Test
+    public  void testExtra2() {
+        Permutation p = getNewPermutation("(BACD)", getNewAlphabet("DBCA"));
+        assertEquals(1, p.permute(0));
+        assertEquals(3, p.permute(9));
+    }
 }
