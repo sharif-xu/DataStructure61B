@@ -130,4 +130,12 @@ public abstract class PermutationTest {
         assertEquals(4, p.permute(26));
         assertEquals(22, p.invert(27));
     }
+    @Test
+    public void testOnlyOne() {
+        Permutation p = getNewPermutation("(A)",getNewAlphabet("A"));
+        assertEquals('A', p.invert('A'));
+        assertEquals(0, p.invert(0));
+        assertEquals('A', p.permute('A'));
+        assertEquals(0, p.permute(0));
+    }
 }
