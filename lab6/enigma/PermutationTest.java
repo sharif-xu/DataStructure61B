@@ -118,7 +118,7 @@ public abstract class PermutationTest {
     }
     @Test
     public void testModule() {
-        Permutation p = getNewPermutation("(BACD)", getNewAlphabet("ABCD");
+        Permutation p = getNewPermutation("(BACD)", getNewAlphabet("ABCD"));
         assertEquals(2, p.permute(8));
         assertEquals(0, p.invert(8));
     }
