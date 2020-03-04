@@ -3,7 +3,7 @@ package enigma;
 import static enigma.EnigmaException.*;
 
 /** Class that represents a reflector in the enigma.
- *  @author
+ *  @author Ruize Xu
  */
 class Reflector extends FixedRotor {
 
@@ -11,10 +11,7 @@ class Reflector extends FixedRotor {
      * is PERM. */
     Reflector(String name, Permutation perm) {
         super(name, perm);
-        // FIXME
     }
-
-    // FIXME?
 
     @Override
     void set(int posn) {
@@ -23,4 +20,9 @@ class Reflector extends FixedRotor {
         }
     }
 
+    @Override
+    /** Return true iff I reflect. */
+    boolean reflecting() {
+        return true;
+    }
 }

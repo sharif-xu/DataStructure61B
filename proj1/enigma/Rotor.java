@@ -11,7 +11,8 @@ class Rotor {
     Rotor(String name, Permutation perm) {
         _name = name;
         _permutation = perm;
-        // FIXME
+        _posn = 0;
+        _cposn = ' ';
     }
 
     /** Return my name. */
@@ -46,29 +47,35 @@ class Rotor {
 
     /** Return my current setting. */
     int setting() {
-        return 0; // FIXME
+        return _posn;
     }
 
     /** Set setting() to POSN.  */
     void set(int posn) {
-        // FIXME
+        _posn = posn;
     }
 
     /** Set setting() to character CPOSN. */
     void set(char cposn) {
-        // FIXME
+        _cposn = cposn;
     }
 
     /** Return the conversion of P (an integer in the range 0..size()-1)
      *  according to my permutation. */
     int convertForward(int p) {
-        return 0;  // FIXME
+        int temp = wrap(p + _posn);
+        temp = permutation().permute(temp);
+        temp = wrap(temp - _posn);
+        return temp;
     }
 
     /** Return the conversion of E (an integer in the range 0..size()-1)
      *  according to the inverse of my permutation. */
     int convertBackward(int e) {
-        return 0;  // FIXME
+        int temp = wrap(e + _posn);
+        temp = permutation().invert(temp);
+        temp = wrap(temp - _posn);
+        return temp;
     }
 
     /** Returns true iff I am positioned to allow the rotor to my left
@@ -86,12 +93,23 @@ class Rotor {
         return "Rotor " + _name;
     }
 
+    /** Return the value of P modulo the size of this alphabet. */
+    final int wrap(int p) {
+        int r = p % alphabet().size();
+        if (r < 0) {
+            r += alphabet().size();
+        }
+        return r;
+    }
+
     /** My name. */
     private final String _name;
-
     /** The permutation implemented by this rotor in its 0 position. */
     private Permutation _permutation;
+    /** The starting position of the rotor. */
+    private int _posn;
+    /** The starting position of the rotor in character. */
+    private char _cposn;
 
-    // FIXME: ADDITIONAL FIELDS HERE, AS NEEDED
 
 }

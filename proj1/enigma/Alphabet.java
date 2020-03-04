@@ -1,15 +1,19 @@
 package enigma;
 
+import java.util.ArrayList;
+
 /** An alphabet of encodable characters.  Provides a mapping from characters
  *  to and from indices into the alphabet.
- *  @author
+ *  @author Ruize Xu
  */
 class Alphabet {
 
     /** A new alphabet containing CHARS.  Character number #k has index
      *  K (numbering from 0). No character may be duplicated. */
     Alphabet(String chars) {
-        // FIXME
+        for (int i = 0; i < chars.length(); i++) {
+            alpha.add(i, chars.charAt(i));
+        }
     }
 
     /** A default alphabet of all upper-case characters. */
@@ -19,24 +23,36 @@ class Alphabet {
 
     /** Returns the size of the alphabet. */
     int size() {
-        return 26; // FIXME
+        return alpha.size();
     }
 
     /** Returns true if CH is in this alphabet. */
     boolean contains(char ch) {
-        return 'A' <= ch && ch <= 'Z'; // FIXME
+        for (int i = 0; i < this.size(); i++) {
+            if (alpha.get(i) == ch) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Returns character number INDEX in the alphabet, where
      *  0 <= INDEX < size(). */
     char toChar(int index) {
-        return (char) ('A' + index); // FIXME
+        return alpha.get(index);
     }
 
     /** Returns the index of character CH which must be in
      *  the alphabet. This is the inverse of toChar(). */
     int toInt(char ch) {
-        return ch - 'A'; // FIXME
+        for (int i = 0; i < this.size() ; i++) {
+            if (ch == alpha.get(i)) {
+                return i;
+            }
+        }
+        return 0;
     }
+
+    private ArrayList<Character> alpha = new ArrayList<Character>();
 
 }
