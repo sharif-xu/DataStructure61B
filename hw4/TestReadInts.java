@@ -9,7 +9,6 @@ import java.util.InputMismatchException;
 
 public class TestReadInts {
 
-
     @Test
     /* For human evaluation. No automated testing here. */
     public void testPrintInts() {

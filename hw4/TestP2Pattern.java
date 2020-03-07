@@ -35,7 +35,7 @@ public class TestP2Pattern {
         String bad2 = "12/39/2012";
         String bad3 = "007/13/2012";
         String bad4 = "07/013/2012";
-        String bad5 = "07/13/02012";
+        String bad5 = "2";
         assertFalse(checkMatch(p, bad1));
         assertFalse(checkMatch(p, bad2));
         assertFalse(checkMatch(p, bad3));
