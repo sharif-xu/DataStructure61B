@@ -37,21 +37,22 @@ class Machine {
     void insertRotors(String[] rotors) {
         _useRotors = new ArrayList<Rotor>(_numRotors);
         for (int i = 0; i < rotors.length; i++) {
-            int flag = 0;
             for (Rotor temp: _allRotors) {
-                if ((temp.name()).equals(rotors[i]) && flag == 0) {
-                    _useRotors.add(i, temp);
-                    flag = 1;
+                if (!(temp.name()).equals(rotors[i])) {
+                    throw error("The rotor is not in the AllRotors!");
                 }
             }
-            if (flag == 0) {
-                throw error("The rotor is not in the AllRotors!");
+            for (Rotor temp: _allRotors) {
+                if ((temp.name()).equals(rotors[i])) {
+                    _useRotors.add(i, temp);
+                }
             }
         }
         if (!_useRotors.get(0).reflecting()) {
             throw error("The first rotor must be reflector!");
         }
-        for (int i = _numRotors - _pawls; i < _numRotors; i++) {
+        int restRotors = _numRotors - _pawls;
+        for (int i = restRotors ; i < _numRotors; i++) {
             if (!_useRotors.get(i).rotates()) {
                 throw error("The rest rotors must be moving rotors!");
             }
@@ -62,13 +63,16 @@ class Machine {
      *  numRotors()-1 characters in my alphabet. The first letter refers
      *  to the leftmost rotor setting (not counting the reflector).  */
     void setRotors(String setting) {
+        if (setting.length() != numRotors() - 1) {
+            throw error("setting length should be numRotors()-1");
+        }
         int i = 0, j = 0;
-        for (Rotor temp: _useRotors) {
+        for (Rotor r: _useRotors) {
             if (j == 0) {
                 j = 1;
                 continue;
             }
-            temp.set(_alphabet.toInt(setting.charAt(i)));
+            r.set(_alphabet.toInt(setting.charAt(i)));
             i++;
         }
     }

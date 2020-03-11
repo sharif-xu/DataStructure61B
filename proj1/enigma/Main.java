@@ -214,23 +214,26 @@ public final class Main {
     /** Print MSG in groups of five (except that the last group may
      *  have fewer letters). */
     private void printMessageLine(String msg) {
+        if (msg.isEmpty()) {
+            throw error("Empty message!");
+        }
         msg = msg.replace(" ", "");
-        char[] temp = msg.toCharArray();
-        int len = temp.length + (temp.length / 5);
-        char[] temp2 = new char[len];
-        int j = 0, index = 0;
-        for (int i = 0; i < temp.length; i++) {
-            if (j < 5) {
-                temp2[index++] = temp[i];
-                j++;
+        char[] inputCharArr = msg.toCharArray();
+        char[] temp2 = new char[inputCharArr.length + (inputCharArr.length / 5)];
+        int count = 0;
+        int index = 0;
+        for (char c : inputCharArr) {
+            if (count < 5) {
+                temp2[index++] = c;
+                count++;
             }
-            if (j == 5) {
+            if (count == 5) {
                 temp2[index++] = ' ';
-                j = 0;
+                count = 0;
             }
         }
-        String temp3 = new String(temp2);
-        _output.println(temp3);
+        String finalStr = new String(temp2);
+        _output.println(finalStr);
     }
 
     /** Alphabet used in this machine. */

@@ -21,7 +21,7 @@ class Permutation {
     /** Add the cycle c0->c1->...->cm->c0 to the permutation, where CYCLE is
      *  c0c1...cm. */
     private void addCycle(String cycle) {
-        this._cycles = _cycles + cycle;
+        this._cycles.concat(cycle);
     }
 
     /** Return the value of P modulo the size of this permutation. */
