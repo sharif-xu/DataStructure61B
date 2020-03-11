@@ -63,9 +63,9 @@ class Rotor {
     /** Return the conversion of P (an integer in the range 0..size()-1)
      *  according to my permutation. */
     int convertForward(int p) {
-        int temp = wrap(p + _posn);
+        int temp = wrap(p + _posn - _rosn);
         temp = permutation().permute(temp);
-        temp = wrap(temp - _posn);
+        temp = wrap(temp - _posn + _rosn);
         return temp;
     }
 
@@ -86,6 +86,7 @@ class Rotor {
 
     /** Advance me one position, if possible. By default, does nothing. */
     void advance() {
+
     }
 
     @Override
@@ -108,8 +109,14 @@ class Rotor {
     private Permutation _permutation;
     /** The starting position of the rotor. */
     private int _posn;
+    /** The ring position of the rotor. */
+    private int _rosn = 0;
     /** The starting position of the rotor in character. */
-    private char _cposn;
+    private char _cposn = 0;
 
+    /** Set setting() to ROSN. */
+    void rset(int rosn) {
+        this._rosn = rosn;
+    }
 
 }

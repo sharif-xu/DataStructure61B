@@ -38,7 +38,6 @@ class MovingRotor extends Rotor {
         set((setting() + 1) % permutation().size());
     }
 
-
+    /** The notch oof the rotor. */
     private String _notches;
-
 }

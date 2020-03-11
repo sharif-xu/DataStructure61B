@@ -45,7 +45,7 @@ class Alphabet {
     /** Returns the index of character CH which must be in
      *  the alphabet. This is the inverse of toChar(). */
     int toInt(char ch) {
-        for (int i = 0; i < this.size() ; i++) {
+        for (int i = 0; i < this.size(); i++) {
             if (ch == alpha.get(i)) {
                 return i;
             }
@@ -53,6 +53,6 @@ class Alphabet {
         return 0;
     }
 
+    /** THe input of alphabet. */
     private ArrayList<Character> alpha = new ArrayList<Character>();
-
 }

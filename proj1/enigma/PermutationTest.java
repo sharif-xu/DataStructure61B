@@ -53,23 +53,26 @@ public class PermutationTest {
 
     @Test
     public void testInvertChar() {
-        Permutation p = new Permutation("(AELTPHQXRU) (BKNW) (CMOY) (DFG) (IV) (JZ) (S)", new Alphabet());
+        String input = "(AELTPHQXRU) (BKNW) (CMOY) (DFG) (IV) (JZ) (S)";
+        Permutation p = new Permutation(input, new Alphabet());
         assertEquals('U', p.invert('A'));
-        assertEquals('W',p.invert('B'));
-        assertEquals('Y',p.invert('C'));
+        assertEquals('W', p.invert('B'));
+        assertEquals('Y', p.invert('C'));
 
     }
     @Test
     public void testInvertInt() {
-        Permutation p = new Permutation("(AELTPHQXRU) (BKNW) (CMOY) (DFG) (IV) (JZ) (S)", new Alphabet());
-        assertEquals(20,p.invert(0));
-        assertEquals(22,p.invert(1));
-        assertEquals(24,p.invert(2));
+        String input = "(AELTPHQXRU) (BKNW) (CMOY) (DFG) (IV) (JZ) (S)";
+        Permutation p = new Permutation(input, new Alphabet());
+        assertEquals(20, p.invert(0));
+        assertEquals(22, p.invert(1));
+        assertEquals(24, p.invert(2));
     }
 
     @Test
     public void testPermuteInt() {
-        Permutation p = new Permutation("(AELTPHQXRU) (BKNW) (CMOY) (DFG) (IV) (JZ) (S)", new Alphabet());
+        String input = "(AELTPHQXRU) (BKNW) (CMOY) (DFG) (IV) (JZ) (S)";
+        Permutation p = new Permutation(input, new Alphabet());
         assertEquals(4, p.permute(0));
         assertEquals(10, p.permute(1));
         assertEquals(9, p.permute(25));
@@ -78,15 +81,17 @@ public class PermutationTest {
 
     @Test
     public void testPermuteChar() {
-        Permutation p = new Permutation("(AELTPHQXRU) (BKNW) (CMOY) (DFG) (IV) (JZ) (S)", new Alphabet());
+        String input = "(AELTPHQXRU) (BKNW) (CMOY) (DFG) (IV) (JZ) (S)";
+        Permutation p = new Permutation(input, new Alphabet());
         assertEquals('E', p.permute('A'));
-        assertEquals('K',p.permute('B'));
-        assertEquals('C',p.permute('Y'));
-        assertEquals('D',p.permute('G'));
+        assertEquals('K', p.permute('B'));
+        assertEquals('C', p.permute('Y'));
+        assertEquals('D', p.permute('G'));
     }
     @Test
     public void testModuleOverBound() {
-        Permutation p = new Permutation("(AELTPHQXRU) (BKNW) (CMOY) (DFG) (IV) (JZ) (S)", new Alphabet());
+        String input = "(AELTPHQXRU) (BKNW) (CMOY) (DFG) (IV) (JZ) (S)";
+        Permutation p = new Permutation(input, new Alphabet());
         assertEquals(4, p.permute(26));
         assertEquals(22, p.invert(27));
     }
@@ -100,8 +105,9 @@ public class PermutationTest {
     }
     @Test
     public void testExtra1() {
-        Permutation p = new Permutation("(DAG) (CS) (O)", new Alphabet("ACSGOD"));
-        assertEquals('A',p.invert('G'));
+        Permutation p = new Permutation("(DAG) (CS) (O)",
+                new Alphabet("ACSGOD"));
+        assertEquals('A', p.invert('G'));
         assertEquals(1, p.invert(2));
     }
     @Test

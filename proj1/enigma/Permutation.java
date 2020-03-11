@@ -15,15 +15,13 @@ class Permutation {
      *  Whitespace is ignored. */
     Permutation(String cycles, Alphabet alphabet) {
         _alphabet = alphabet;
-        // doneFIXME
         _cycles = cycles;
     }
 
     /** Add the cycle c0->c1->...->cm->c0 to the permutation, where CYCLE is
      *  c0c1...cm. */
     private void addCycle(String cycle) {
-        // doneFIXME
-        this._cycles.concat(cycle);
+        this._cycles = _cycles + cycle;
     }
 
     /** Return the value of P modulo the size of this permutation. */
@@ -40,12 +38,15 @@ class Permutation {
         return this.alphabet().size();
     }
 
-    /** Helping function used to return the index of certain character
+    /**
+     * helper function.
+     * @param ch the input char
+     * @return integer
      */
-    int getIndex(char c) {
+    int getIndex(char ch) {
         int index = 0;
         for (int i = 0; i < _cycles.length(); i++) {
-            if (c == _cycles.charAt(i)) {
+            if (ch == _cycles.charAt(i)) {
                 index = i;
                 break;
             }
@@ -110,8 +111,8 @@ class Permutation {
      *  permutation for which no value maps to itself). */
     boolean derangement() {
         for (int i = 1; i < _cycles.length() - 1; i++) {
-            if (_cycles.charAt(i) == _cycles.charAt(i-1)
-                    || _cycles.charAt(i) == _cycles.charAt(i+1)) {
+            if (_cycles.charAt(i) == _cycles.charAt(i - 1)
+                    || _cycles.charAt(i) == _cycles.charAt(i + 1)) {
                 return false;
             }
         }
@@ -121,6 +122,6 @@ class Permutation {
     /** Alphabet of this permutation. */
     private Alphabet _alphabet;
 
-    // doneFIXME: ADDITIONAL FIELDS HERE, AS NEEDED
+    /** Cycles  of this permutation. */
     private String _cycles;
 }
