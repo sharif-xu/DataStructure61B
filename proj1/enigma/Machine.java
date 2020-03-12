@@ -36,6 +36,13 @@ class Machine {
      *  Initially, all rotors are set at their 0 setting. */
     void insertRotors(String[] rotors) {
         _useRotors = new ArrayList<Rotor>(_numRotors);
+        for (String rotor : rotors) {
+            for (Rotor temp : _allRotors) {
+                if (!rotor.equals(temp.name())) {
+                    throw error("Bad rotor name!");
+                }
+            }
+        }
         for (int i = 0; i < rotors.length; i++) {
             for (Rotor temp: _allRotors) {
                 if ((temp.name()).equals(rotors[i])) {
@@ -43,9 +50,9 @@ class Machine {
                 }
             }
         }
-//        if (!_useRotors.get(0).reflecting()) {
-//            throw error("The first rotor must be reflector!");
-//        }
+        if (!_useRotors.get(0).reflecting()) {
+            throw error("Reflector in wrong place!");
+        }
 //        int restRotors = _numRotors - _pawls;
 //        for (int i = restRotors; i < _numRotors; i++) {
 //            if (!_useRotors.get(i).rotates()) {
