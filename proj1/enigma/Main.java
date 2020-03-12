@@ -102,7 +102,7 @@ public final class Main {
     private Machine readConfig() {
         try {
             if (!_config.hasNext()) {
-                throw error("This is an empty configure file!");
+                throw error("Empty config file!");
             }
             String temp = _config.next();
             _alphabet = new Alphabet(temp);
@@ -136,29 +136,25 @@ public final class Main {
                 }
             }
             Permutation perm = new Permutation(cycles, _alphabet);
-            int flag = 0;
             char[] setUps = setUp.toCharArray();
             String notches = "";
-            if (setUps[0] == 'M') {
-                flag = 1;
+            boolean flag1 = (setUps[0] == 'M');
+            boolean flag2 = (setUps[0] == 'N');
+            boolean flag3 = (setUps[0] == 'R');
+            if (!flag1 && !flag2 && !flag3) {
+                return null;
+            }
+            if (flag1) {
                 for (int j = 1; j < setUps.length; j++) {
                     notches = notches.concat(Character.toString(setUps[j]));
                 }
-            } else if (setUps[0] == 'N') {
-                flag = 2;
-            } else if (setUps[0] == 'R') {
-                flag = 3;
-            } else {
-                throw error("Wrong setting on the type of the rotors!");
-            }
-            if (flag == 1) {
                 return new MovingRotor(rname, perm, notches);
-            } else if (flag == 2) {
+            } else if (flag2) {
                 return new FixedRotor(rname, perm);
-            } else if (flag == 3) {
+            } else if (flag3) {
                 return new Reflector(rname, perm);
             } else {
-                return null;
+                throw error("Wrong setting on the type of the rotors!");
             }
         } catch (NoSuchElementException excp) {
             throw error("bad rotor description");
