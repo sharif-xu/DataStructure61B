@@ -210,25 +210,21 @@ public final class Main {
     /** Print MSG in groups of five (except that the last group may
      *  have fewer letters). */
     private void printMessageLine(String msg) {
-        if (msg.isEmpty()) {
-            throw error("Empty message!");
-        }
         msg = msg.replace(" ", "");
         char[] inputCharArr = msg.toCharArray();
-        char[] temp2 = new char[inputCharArr.length + (inputCharArr.length / 5)];
+        int len = inputCharArr.length + inputCharArr.length / 5;
+        char[] temp = new char[len];
         int count = 0;
         int index = 0;
         for (char c : inputCharArr) {
-            if (count < 5) {
-                temp2[index++] = c;
-                count++;
-            }
+            temp[index++] = c;
+            count++;
             if (count == 5) {
-                temp2[index++] = ' ';
+                temp[index++] = ' ';
                 count = 0;
             }
         }
-        String finalStr = new String(temp2);
+        String finalStr = new String(temp);
         _output.println(finalStr);
     }
 

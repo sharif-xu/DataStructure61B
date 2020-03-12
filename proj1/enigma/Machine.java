@@ -38,25 +38,20 @@ class Machine {
         _useRotors = new ArrayList<Rotor>(_numRotors);
         for (int i = 0; i < rotors.length; i++) {
             for (Rotor temp: _allRotors) {
-                if (!(temp.name()).equals(rotors[i])) {
-                    throw error("The rotor is not in the AllRotors!");
-                }
-            }
-            for (Rotor temp: _allRotors) {
                 if ((temp.name()).equals(rotors[i])) {
                     _useRotors.add(i, temp);
                 }
             }
         }
-        if (!_useRotors.get(0).reflecting()) {
-            throw error("The first rotor must be reflector!");
-        }
-        int restRotors = _numRotors - _pawls;
-        for (int i = restRotors ; i < _numRotors; i++) {
-            if (!_useRotors.get(i).rotates()) {
-                throw error("The rest rotors must be moving rotors!");
-            }
-        }
+//        if (!_useRotors.get(0).reflecting()) {
+//            throw error("The first rotor must be reflector!");
+//        }
+//        int restRotors = _numRotors - _pawls;
+//        for (int i = restRotors; i < _numRotors; i++) {
+//            if (!_useRotors.get(i).rotates()) {
+//                throw error("The rest rotors must be moving rotors!");
+//            }
+//        }
     }
 
     /** Set my rotors according to SETTING, which must be a string of
