@@ -197,8 +197,11 @@ public final class Main {
         M.insertRotors(rotors);
         int newStart = _numRotors + 2;
         if (newStart < temp.length) {
-            M.resetRotors(temp[_numRotors + 2]);
-            newStart++;
+            if (!temp[newStart].contains("(")
+                    && !temp[newStart].contains("(")) {
+                M.resetRotors(temp[_numRotors + 2]);
+                newStart++;
+            }
         }
         String cycles = "";
         for (int j = newStart; j < temp.length; j++) {
