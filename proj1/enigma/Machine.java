@@ -36,11 +36,17 @@ class Machine {
      *  Initially, all rotors are set at their 0 setting. */
     void insertRotors(String[] rotors) {
         _useRotors = new ArrayList<Rotor>(_numRotors);
+        int flag = 0;
         for (String rotor : rotors) {
             for (Rotor temp : _allRotors) {
-                if (!rotor.equals(temp.name())) {
-                    throw error("Bad rotor name!");
+                if (rotor.equals(temp.name())) {
+                   flag = 1;
                 }
+            }
+            if (flag == 0) {
+                throw error("Bad rotor name");
+            } else {
+                flag = 0;
             }
         }
         for (int i = 0; i < rotors.length; i++) {
@@ -68,14 +74,9 @@ class Machine {
         if (setting.length() != numRotors() - 1) {
             throw error("setting length should be numRotors()-1");
         }
-        int i = 0, j = 0;
-        for (Rotor r: _useRotors) {
-            if (j == 0) {
-                j = 1;
-                continue;
-            }
-            r.set(_alphabet.toInt(setting.charAt(i)));
-            i++;
+        for (int i = 1; i < _useRotors.size(); i++) {
+            Rotor temp = _useRotors.get(i);
+            temp.set(_alphabet.toInt(setting.charAt(i - 1)));
         }
     }
 
