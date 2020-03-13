@@ -40,7 +40,7 @@ class Machine {
         for (String rotor : rotors) {
             for (Rotor temp : _allRotors) {
                 if (rotor.equals(temp.name())) {
-                   flag = 1;
+                    flag = 1;
                 }
             }
             if (flag == 0) {
@@ -59,12 +59,15 @@ class Machine {
         if (!_useRotors.get(0).reflecting()) {
             throw error("Reflector in wrong place!");
         }
-//        int restRotors = _numRotors - _pawls;
-//        for (int i = restRotors; i < _numRotors; i++) {
-//            if (!_useRotors.get(i).rotates()) {
-//                throw error("The rest rotors must be moving rotors!");
-//            }
-//        }
+        int count = 0;
+        for (int i = 0; i < _numRotors; i++) {
+            if (_useRotors.get(i).rotates()) {
+                count++;
+            }
+        }
+        if (count != _pawls) {
+            throw error("Wrong number of argument!");
+        }
     }
 
     /** Set my rotors according to SETTING, which must be a string of
@@ -72,7 +75,7 @@ class Machine {
      *  to the leftmost rotor setting (not counting the reflector).  */
     void setRotors(String setting) {
         if (setting.length() != numRotors() - 1) {
-            throw error("setting length should be numRotors()-1");
+            throw error("setting length error should be numRotors() - 1!");
         }
         for (int i = 1; i < _useRotors.size(); i++) {
             Rotor temp = _useRotors.get(i);

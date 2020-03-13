@@ -81,9 +81,6 @@ public final class Main {
         Machine mc = readConfig();
         String setting = _input.nextLine();
 
-        if (!_input.hasNextLine()) {
-            throw error("Empty input!");
-        }
         if (!setting.contains("*")) {
             throw error("The first line is not the valid setting!");
         }
@@ -121,7 +118,7 @@ public final class Main {
                 throw error("No moving rotor!");
             }
             _pawls = _config.nextInt();
-            if(!_config.hasNext()) {
+            if (!_config.hasNext()) {
                 throw error("No rotors' setting!");
             }
             next = _config.next();
@@ -172,7 +169,7 @@ public final class Main {
             } else if (flag3) {
                 return new Reflector(rname, perm);
             } else {
-                throw error("Wrong setting on the type of the rotors!");
+                throw error("Type of the rotors is wrong!");
             }
         } catch (NoSuchElementException excp) {
             throw error("bad rotor description");
@@ -182,45 +179,32 @@ public final class Main {
     /** Set M according to the specification given on SETTINGS,
      *  which must have the format specified in the assignment. */
     private void setUp(Machine M, String settings) {
-        int i = 0;
         String[] rotors = new String[_numRotors];
         String[] temp = settings.split(" ");
-        for (i = 0; i < _numRotors; i++) {
+        if (temp.length - 1 < M.numRotors()) {
+            throw error("lack of rotors!");
+        }
+        for (int i = 0; i < _numRotors; i++) {
             rotors[i] = temp[i + 1];
         }
-        for (int j = 0; j < rotors.length; j++) {
-            for (int x = j + 1; x < rotors.length; x++) {
-                if (rotors[j].equals(rotors[x])) {
-                    throw error("Rotors can only be used once!");
+        for (int i = 0; i < rotors.length; i++) {
+            for (int j = i + 1; j < rotors.length; j++) {
+                if (rotors[i].equals(rotors[j])) {
+                    throw error("repeated rotor!");
                 }
             }
         }
-        M.insertRotors(rotors);
-        if (temp[i + 1].length() != _numRotors - 1) {
-            throw error("Wrong input of the settings for each rotor!");
-        }
-        int index = i + 2;
-        if (index < temp.length) {
-            if (temp[index].length() == _numRotors - 1
-                    && !temp[index].contains("(")
-                    && !temp[index].contains("(")) {
-                M.rsetRotors(temp[index]);
-                index++;
-            }
-        }
-        M.setRotors(temp[i + 1]);
-        int j = 0;
+
         String cycles = "";
-        for (j = index; j < temp.length; j++) {
-            if (temp[j].length() != 4) {
-                throw error("The plugboard must contain two elements!");
-            }
-            if (temp[j].contains("(") && temp[j].contains(")")) {
+        for (int j = _numRotors + 2; j < temp.length; j++) {
+            if (temp[j].matches("^\\([A-Z]{2}\\)$")) {
                 cycles = cycles.concat(temp[j]);
             } else {
                 throw error("Wrong setting on the plugboard");
             }
         }
+        M.insertRotors(rotors);
+        M.setRotors(temp[_numRotors + 1]);
         Permutation perm = new Permutation(cycles, _alphabet);
         M.setPlugboard(perm);
     }
