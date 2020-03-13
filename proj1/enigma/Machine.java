@@ -112,7 +112,8 @@ class Machine {
                 _usingRotors.get(i).advance();
                 continue;
             }
-            if (_usingRotors.get(i).rotates() && _usingRotors.get(i + 1).atNotch()) {
+            if (_usingRotors.get(i).rotates()
+                    && _usingRotors.get(i + 1).atNotch()) {
                 isAdvance[i] = true;
                 isAdvance[i + 1] = true;
                 i++;
