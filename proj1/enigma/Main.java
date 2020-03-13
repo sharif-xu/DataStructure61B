@@ -82,7 +82,7 @@ public final class Main {
         String setting = _input.nextLine();
 
         if (!setting.contains("*")) {
-            throw error("The first line is not the valid setting!");
+            throw error("The first line is not a valid setting!");
         }
         while (_input.hasNextLine()) {
             if (setting.contains("*")) {
@@ -123,7 +123,7 @@ public final class Main {
             }
             next = _config.next();
             while (_config.hasNext()) {
-                rname = next;
+                mName = next;
                 Rotor rotor = readRotor();
                 _allRotors.add(rotor);
             }
@@ -163,11 +163,11 @@ public final class Main {
                 for (int j = 1; j < setUps.length; j++) {
                     notches = notches.concat(Character.toString(setUps[j]));
                 }
-                return new MovingRotor(rname, perm, notches);
+                return new MovingRotor(mName, perm, notches);
             } else if (flag2) {
-                return new FixedRotor(rname, perm);
+                return new FixedRotor(mName, perm);
             } else if (flag3) {
-                return new Reflector(rname, perm);
+                return new Reflector(mName, perm);
             } else {
                 throw error("Type of the rotors is wrong!");
             }
@@ -194,16 +194,20 @@ public final class Main {
                 }
             }
         }
-
+        M.insertRotors(rotors);
+        int newStart = _numRotors + 2;
+        if (newStart < temp.length) {
+            M.resetRotors(temp[_numRotors + 2]);
+            newStart++;
+        }
         String cycles = "";
-        for (int j = _numRotors + 2; j < temp.length; j++) {
+        for (int j = newStart; j < temp.length; j++) {
             if (temp[j].matches("^\\([A-Z]{2}\\)$")) {
                 cycles = cycles.concat(temp[j]);
             } else {
                 throw error("Wrong setting on the plugboard");
             }
         }
-        M.insertRotors(rotors);
         M.setRotors(temp[_numRotors + 1]);
         Permutation perm = new Permutation(cycles, _alphabet);
         M.setPlugboard(perm);
@@ -255,6 +259,6 @@ public final class Main {
     private String next;
 
     /** The name of the machine. */
-    private String rname;
+    private String mName;
 
 }

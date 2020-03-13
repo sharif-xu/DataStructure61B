@@ -35,7 +35,7 @@ class Machine {
      *  available rotors (ROTORS[0] names the reflector).
      *  Initially, all rotors are set at their 0 setting. */
     void insertRotors(String[] rotors) {
-        _useRotors = new ArrayList<Rotor>(_numRotors);
+        _usingRotors = new ArrayList<Rotor>(_numRotors);
         int flag = 0;
         for (String rotor : rotors) {
             for (Rotor temp : _allRotors) {
@@ -52,16 +52,16 @@ class Machine {
         for (int i = 0; i < rotors.length; i++) {
             for (Rotor temp: _allRotors) {
                 if ((temp.name()).equals(rotors[i])) {
-                    _useRotors.add(i, temp);
+                    _usingRotors.add(i, temp);
                 }
             }
         }
-        if (!_useRotors.get(0).reflecting()) {
+        if (!_usingRotors.get(0).reflecting()) {
             throw error("Reflector in wrong place!");
         }
         int count = 0;
         for (int i = 0; i < _numRotors; i++) {
-            if (_useRotors.get(i).rotates()) {
+            if (_usingRotors.get(i).rotates()) {
                 count++;
             }
         }
@@ -77,8 +77,8 @@ class Machine {
         if (setting.length() != numRotors() - 1) {
             throw error("setting length error should be numRotors() - 1!");
         }
-        for (int i = 1; i < _useRotors.size(); i++) {
-            Rotor temp = _useRotors.get(i);
+        for (int i = 1; i < _usingRotors.size(); i++) {
+            Rotor temp = _usingRotors.get(i);
             temp.set(_alphabet.toInt(setting.charAt(i - 1)));
         }
     }
@@ -86,15 +86,13 @@ class Machine {
     /** Set default setting according to SETTING, which must be a string of
      *  numRotors()-1 characters in my alphabet. The first letter refers
      *  to the leftmost rotor setting (not counting the reflector).  */
-    void rsetRotors(String setting) {
-        int i = 0, j = 0;
-        for (Rotor temp: _useRotors) {
-            if (j == 0) {
-                j = 1;
-                continue;
-            }
-            temp.rset(_alphabet.toInt(setting.charAt(i)));
-            i++;
+    void resetRotors(String setting) {
+        if (setting.length() != numRotors() - 1) {
+            throw error("setting length error should be numRotors() - 1!");
+        }
+        for (int i = 1; i < _usingRotors.size(); i++) {
+            Rotor temp = _usingRotors.get(i);
+            temp.rset(_alphabet.toInt(setting.charAt(i - 1)));
         }
     }
 
@@ -107,29 +105,33 @@ class Machine {
      *  index in the range 0..alphabet size - 1), after first advancing
      *  the machine. */
     int convert(int c) {
-        for (int i = _useRotors.size() - numPawls() - 1;
-             i < _useRotors.size(); i++) {
-            if (i == _useRotors.size() - 1) {
-                _useRotors.get(i).advance();
+        int countRotors = _usingRotors.size() - numPawls() - 1;
+        boolean[] isAdvance = new boolean[_numRotors];
+        for (int i = countRotors; i < _usingRotors.size(); i++) {
+            if (i == _usingRotors.size() - 1) {
+                _usingRotors.get(i).advance();
                 continue;
             }
-            if (_useRotors.get(i).rotates()) {
-                if (_useRotors.get(i + 1).atNotch()) {
-                    _useRotors.get(i).advance();
-                    _useRotors.get(i + 1).advance();
-                    i++;
-                }
+            if (_usingRotors.get(i).rotates() && _usingRotors.get(i + 1).atNotch()) {
+                isAdvance[i] = true;
+                isAdvance[i + 1] = true;
+                i++;
             }
         }
-        int temp = _plugBoard.permute(c);
-        for (int i = _useRotors.size() - 1; i >= 0; i--) {
-            temp = _useRotors.get(i).convertForward(temp);
+        for (int i = _numRotors - 1; i > 0; i--) {
+            if (isAdvance[i]) {
+                _usingRotors.get(i).advance();
+            }
         }
-        for (int i = 1; i < _useRotors.size(); i++) {
-            temp = _useRotors.get(i).convertBackward(temp);
+        int res = _plugBoard.permute(c);
+        for (int i = _usingRotors.size() - 1; i >= 0; i--) {
+            res = _usingRotors.get(i).convertForward(res);
         }
-        temp = _plugBoard.permute(temp);
-        return temp;
+        for (int i = 1; i < _usingRotors.size(); i++) {
+            res = _usingRotors.get(i).convertBackward(res);
+        }
+        res = _plugBoard.invert(res);
+        return res;
     }
 
     /** Returns the encoding/decoding of MSG, updating the state of
@@ -137,11 +139,11 @@ class Machine {
     String convert(String msg) {
         char[] temp = msg.toCharArray();
         for (int i = 0; i < temp.length; i++) {
-            int medium = convert(_alphabet.toInt(msg.charAt(i)));
-            temp[i] = _alphabet.toChar(medium);
+            int convertInt = convert(_alphabet.toInt(msg.charAt(i)));
+            temp[i] = _alphabet.toChar(convertInt);
         }
-        String a = new String(temp);
-        return a;
+        String result = new String(temp);
+        return result;
     }
 
     /** Common alphabet of my rotors. */
@@ -153,7 +155,7 @@ class Machine {
     /** The collection of all the rotors. */
     private Collection<Rotor> _allRotors;
     /** The using rotors. */
-    private ArrayList<Rotor> _useRotors;
+    private ArrayList<Rotor> _usingRotors;
     /** The plugboard. */
     private Permutation _plugBoard;
 }

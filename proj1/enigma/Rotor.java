@@ -13,6 +13,7 @@ class Rotor {
         _permutation = perm;
         _posn = 0;
         _cposn = ' ';
+        _rosn = 0;
     }
 
     /** Return my name. */
@@ -72,9 +73,9 @@ class Rotor {
     /** Return the conversion of E (an integer in the range 0..size()-1)
      *  according to the inverse of my permutation. */
     int convertBackward(int e) {
-        int temp = wrap(e + _posn);
+        int temp = wrap(e + _posn - _rosn);
         temp = permutation().invert(temp);
-        temp = wrap(temp - _posn);
+        temp = wrap(temp - _posn + _rosn);
         return temp;
     }
 

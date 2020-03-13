@@ -35,7 +35,8 @@ class MovingRotor extends Rotor {
 
     @Override
     void advance() {
-        set((setting() + 1) % permutation().size());
+        int newPos = permutation().wrap(setting() + 1);
+        set(newPos);
     }
 
     /** The notch oof the rotor. */
