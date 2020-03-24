@@ -6,7 +6,7 @@ import java.util.Stack;
 
 /**
  * Implementation of a BST based String Set.
- * @author
+ * @author Ruize Xu
  */
 public class BSTStringSet implements StringSet, Iterable<String> {
     /** Creates a new empty set. */
@@ -16,19 +16,56 @@ public class BSTStringSet implements StringSet, Iterable<String> {
 
     @Override
     public void put(String s) {
-        // FIXME: PART A
+        if (!this.contains(s)){
+            _root = putHelp(_root, s);
+        }
+    }
+
+    /** A recursive put helper functhion. */
+    public Node putHelp(Node root, String s) {
+        if (root == null) {
+            return new Node(s);
+        }
+        if (s.compareTo(root.s) == 0) {
+            root.s = s;
+        } else if (s.compareTo(root.s) < 0) {
+            root.left = putHelp(root.left, s);
+        } else if (s.compareTo(root.s) > 0) {
+            root.right = putHelp(root.right, s);
+        }
+        return root;
     }
 
     @Override
     public boolean contains(String s) {
-        return false; // FIXME: PART A
+        return containsHelp(_root, s);
+    }
+
+    /** A recursive contains helper functhion. */
+    public boolean containsHelp(Node node, String s) {
+        if (node == null){
+            return false;
+        }
+        if (s.compareTo(node.s) == 0) {
+            return true;
+        } else if (s.compareTo(node.s) < 0) {
+            return containsHelp(node.left, s);
+        } else if (s.compareTo(node.s) > 0) {
+            return containsHelp(node.right, s);
+        } else {
+            return false;
+        }
     }
 
     @Override
     public List<String> asList() {
-        return null; // FIXME: PART A
+        List<String> resultList = new ArrayList<String>();
+        BSTIterator iterator = new BSTIterator(_root);
+        while (iterator.hasNext()) {
+            resultList.add(iterator.next());
+        }
+        return resultList;
     }
-
 
     /** Represents a single Node of the tree. */
     private static class Node {
@@ -95,12 +132,35 @@ public class BSTStringSet implements StringSet, Iterable<String> {
         return new BSTIterator(_root);
     }
 
-    // FIXME: UNCOMMENT THE NEXT LINE FOR PART B
-    // @Override
+    //@Override
     public Iterator<String> iterator(String low, String high) {
-        return null;  // FIXME: PART B
+        Stack<Node> temp = new Stack<Node>();
+        BSTIterator iterator = new BSTIterator(null);
+        iteratorHelp(_root, low, high, temp);
+        while (!temp.empty()) {
+            Node node = temp.pop();
+            node.right = null;
+            node.left = null;
+            iterator._toDo.push(node);
+        }
+        return iterator;
     }
 
+    public void iteratorHelp(Node node, String low, String high, Stack<Node> temp) {
+        if (node != null) {
+            boolean greatThanLow = (low.compareTo(node.s) < 0);
+            boolean lessThanHigh = (high.compareTo(node.s) > 0);
+            if (greatThanLow) {
+                iteratorHelp(node.left, low, high, temp);
+            }
+            if (greatThanLow && lessThanHigh) {
+                temp.push(node);
+            }
+            if (lessThanHigh) {
+                iteratorHelp(node.right, low, high, temp);
+            }
+        }
+    }
 
     /** Root node of the tree. */
     private Node _root;
