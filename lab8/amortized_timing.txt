@@ -1,17 +1,17 @@
 Q: Is one GrowList implementation always better than the others?
-A:
+A: No. When I test with '50 100 -accum', the outcome of amortized time is: JavaGrowList > GeomGrowList > ArithGrowList. However, when we set up more and more additions and different lists, we get the trend: ArithGrowList needs longest time, following by GeomGrowList and JavaGrowList.
 
 Q: Why is the runtime for N insertions into a geometrically resizing list a Theta(N) operation?
-A:
+A: Because geometrically resizing list only enlarger the list when the current list has no room, and then the operation is to double the list, which saves time on creating new list per insertion.
 
 Q: Why is the runtime for N insertions into a arithmetically resizing list a Theta(N^2) operation?
-A:
+A: Because each time we do an insertion, we hit the conditional judgement and create a new list, which cost Theta(N^2).
 
 Q: How does the runtime per operation for the ArithGrowList compare to that of GeomGrowList and JavaGrowList? Specifically look at the non-accumulated plots and desribe the trends for how long each operation takes as a function of how many elements have already been inserted in the list.
-A:
+A: ArithGrowList keeps increasing growth along time. And JavaGrowList contains part of GeomGrowList algorithm. So, for both of them, compared with ArithGrowList, their runtime per operation grow regularly at 2^i points and keep low runtime at rest points.
 
 Q: When are there spikes in the per operation runtime graphs for each of the implementations? Do these make sense to you? Hint: some of these should and others might not. Empirical runtime can be quite messy and depends on machine specifics which will be revealed in other subsequent classes like CS61C.
-A:
+A: In both GeomGrowList and JavaGrowList, the spikes occur at the 2^i point(i is all positive integers). These spikes occur because we are doubling the size the list. As for ArithGrowList, there do not exist such obvious spikes.
 
 Q: Optional: Try changing the code for GeomGrowList to resize by a different factor. How does this effect the theoretical asymptotic runtime? How does this effect the plotted runtime?
 A:
