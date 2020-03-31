@@ -2,6 +2,8 @@
  * University of California.  All rights reserved. */
 package loa;
 
+import net.sf.saxon.expr.instruct.ITemplateCall;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -14,7 +16,7 @@ import static loa.Piece.*;
 import static loa.Square.*;
 
 /** Represents the state of a game of Lines of Action.
- *  @author
+ *  @author Ruize Xu
  */
 class Board {
 
@@ -51,7 +53,12 @@ class Board {
 
     /** Set my state to CONTENTS with SIDE to move. */
     void initialize(Piece[][] contents, Piece side) {
-        // FIXME
+        int count = 0;
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j <  BOARD_SIZE; j++) {
+                _board[count++] = contents[i][j];
+            }
+        }
         _turn = side;
         _moveLimit = DEFAULT_MOVE_LIMIT;
     }
@@ -65,8 +72,11 @@ class Board {
     void copyFrom(Board board) {
         if (board == this) {
             return;
+        } else {
+            System.arraycopy(board._board, 0, this._board, 0, BOARD_SIZE * BOARD_SIZE);
+            this._turn = board._turn;
+            this._moveLimit = DEFAULT_MOVE_LIMIT;
         }
-        // FIXME
     }
 
     /** Return the contents of the square at SQ. */
@@ -77,7 +87,8 @@ class Board {
     /** Set the square at SQ to V and set the side that is to move next
      *  to NEXT, if NEXT is not null. */
     void set(Square sq, Piece v, Piece next) {
-        // FIXME
+        _board[sq.index()] = v;
+        _turn = next;
     }
 
     /** Set the square at SQ to V, without modifying the side that
@@ -101,14 +112,33 @@ class Board {
      *  the capturing move. */
     void makeMove(Move move) {
         assert isLegal(move);
-        // FIXME
+        Square from = move.getFrom();
+        Square to = move.getTo();
+        Piece fp = get(from);
+        Piece tp = get(to);
+        set(from, EMP);
+        set(to, fp, fp.opposite());
+        if (fp == tp.opposite()) {
+            move = Move.mv(from, to).captureMove();
+        }
+        _moves.add(move);
     }
 
     /** Retract (unmake) one move, returning to the state immediately before
      *  that move.  Requires that movesMade () > 0. */
     void retract() {
         assert movesMade() > 0;
-        // FIXME
+        Move move = _moves.remove(_moves.size() - 1);
+        Square from = move.getFrom();
+        Square to = move.getTo();
+        Piece currentTo = get(to);
+        if (move.isCapture()) {
+            set(to, currentTo.opposite());
+            set(from, currentTo, currentTo);
+        } else {
+            set(to, EMP);
+            set(from, currentTo, currentTo);
+        }
     }
 
     /** Return the Piece representing who is next to move. */
@@ -119,7 +149,52 @@ class Board {
     /** Return true iff FROM - TO is a legal move for the player currently on
      *  move. */
     boolean isLegal(Square from, Square to) {
-        return true;   // FIXME
+        Piece fromP = get(from);
+        Piece toP = get(to);
+        int distance = from.distance(to);
+        int direction = from.direction(to);
+        if (!from.isValidMove(to)) {
+            return false;
+        }
+        if (fromP == toP) {
+            return false;
+        }
+        if (blocked(from, to)) {
+            return false;
+        }
+        return distance == calcNumPiece(direction, from);
+    }
+
+    /**
+     * Helper function for calculate the numeber of !EMP pieces in
+     * certain direction.
+     * @param direction
+     * @param from
+     * @return
+     */
+    int calcNumPiece(int direction, Square from) {
+        int opDir = 0;
+        if (direction >= 4) {
+            opDir = direction - 4;
+        } else {
+            opDir = direction + 4;
+        }
+        int count = 1;
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            Square temp1 = from.moveDest(direction, i);
+            Square temp2 = from.moveDest(opDir,i);
+            if (temp1 != null) {
+                if (get(temp1) != EMP) {
+                    count++;
+                }
+            }
+            if (temp2 != null) {
+                if (get(temp2) != EMP) {
+                    count++;
+                }
+            }
+        }
+        return count;
     }
 
     /** Return true iff MOVE is legal for the player currently on move.
@@ -130,7 +205,23 @@ class Board {
 
     /** Return a sequence of all legal moves from this position. */
     List<Move> legalMoves() {
-        return null;  // FIXME
+        List<Move> allLegalMoves = new ArrayList<Move>();
+        for (int i = 0; i < _board.length; i++) {
+            Square currentSq = ALL_SQUARES[i];
+            Piece currentP = _board[i];
+            if (currentP == _turn) {
+                for (int j = 0; j < _board.length; j++) {
+                   Square nextSq = ALL_SQUARES[j];
+                   Piece nextP = _board[nextSq.index()];
+                    if (currentP != nextP) {
+                        if (isLegal(currentSq, nextSq)) {
+                            allLegalMoves.add(Move.mv(currentSq, nextSq));
+                        }
+                    }
+                }
+            }
+        }
+        return allLegalMoves;
     }
 
     /** Return true iff the game is over (either player has all his
@@ -148,7 +239,17 @@ class Board {
      *  null.  If the game has ended in a tie, returns EMP. */
     Piece winner() {
         if (!_winnerKnown) {
-            // FIXME
+            if (_moves.size() > _moveLimit) {
+                return EMP;
+            }
+            if (!piecesContiguous(_turn) && !piecesContiguous(_turn.opposite())) {
+                return null;
+            }
+            if (piecesContiguous(_turn)) {
+                _winner = _turn.opposite();
+            } else {
+                _winner = _turn;
+            }
             _winnerKnown = true;
         }
         return _winner;
@@ -190,7 +291,17 @@ class Board {
     /** Return true if a move from FROM to TO is blocked by an opposing
      *  piece or by a friendly piece on the target square. */
     private boolean blocked(Square from, Square to) {
-        return false; // FIXME
+        int dir = from.direction(to);
+        int distance = from.distance(to);
+        for (int i = 0; i < distance; i++) {
+            Square temp = from.moveDest(dir, i);
+            if(temp != null) {
+                if (get(temp) == get(from).opposite()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /** Return the size of the as-yet unvisited cluster of squares
@@ -198,7 +309,26 @@ class Board {
      *  have already been processed or are in different clusters.  Update
      *  VISITED to reflect squares counted. */
     private int numContig(Square sq, boolean[][] visited, Piece p) {
-        return 0;  // FIXME
+        Piece currentP = get(sq);
+        if (p == EMP) {
+            return 0;
+        }
+        if (currentP != p) {
+            return 0;
+        }
+        if (visited[sq.row()][sq.col()]) {
+            return 0;
+        } else {
+            int count = 1;
+            visited[sq.row()][sq.col()] = true;
+            for (int i = 0; i < 8; i++) {
+                Square next = sq.moveDest(i, 1);
+                if (next != null) {
+                    count += numContig(next, visited, p);
+                }
+            }
+            return count;
+        }
     }
 
     /** Set the values of _whiteRegionSizes and _blackRegionSizes. */
@@ -208,7 +338,30 @@ class Board {
         }
         _whiteRegionSizes.clear();
         _blackRegionSizes.clear();
-        // FIXME
+        boolean[][] visited = new boolean[BOARD_SIZE][BOARD_SIZE];
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                visited[i][j] = false;
+            }
+        }
+        for (int i = 0; i < _board.length; i++) {
+            int row = 0;
+            int col = i;
+            if (i > 7) {
+                col = i % BOARD_SIZE;
+                row = i / BOARD_SIZE;
+            }
+            if (_board[i] == BP) {
+                if (!visited[row][col]) {
+                    _blackRegionSizes.add(numContig(ALL_SQUARES[i], visited, BP));
+                }
+            }
+            if (_board[i] == WP) {
+                if (!visited[row][col]) {
+                    _whiteRegionSizes.add(numContig(ALL_SQUARES[i], visited, WP));
+                }
+            }
+        }
         Collections.sort(_whiteRegionSizes, Collections.reverseOrder());
         Collections.sort(_blackRegionSizes, Collections.reverseOrder());
         _subsetsInitialized = true;
@@ -224,8 +377,6 @@ class Board {
             return _blackRegionSizes;
         }
     }
-
-    // FIXME: Other methods, variables?
 
     /** The standard initial configuration for Lines of Action (bottom row
      *  first). */

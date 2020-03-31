@@ -67,6 +67,7 @@ public class BoardTest {
     /** Test display */
     @Test
     public void toStringTest() {
+        System.out.println(new Board(BOARD1, BP).toString());
         assertEquals(BOARD1_STRING, new Board(BOARD1, BP).toString());
     }
 
