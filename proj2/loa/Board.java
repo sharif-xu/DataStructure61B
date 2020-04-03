@@ -122,6 +122,7 @@ class Board {
             move = Move.mv(from, to).captureMove();
         }
         _moves.add(move);
+        _subsetsInitialized = false;
     }
 
     /** Retract (unmake) one move, returning to the state immediately before
@@ -246,9 +247,9 @@ class Board {
                 return null;
             }
             if (piecesContiguous(_turn)) {
-                _winner = _turn.opposite();
-            } else {
                 _winner = _turn;
+            } else {
+                _winner = _turn.opposite();
             }
             _winnerKnown = true;
         }
