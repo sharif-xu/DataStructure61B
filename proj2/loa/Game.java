@@ -15,7 +15,7 @@ import static loa.Main.*;
 import static loa.Utils.*;
 
 /** Represents one game of Lines of Action.
- *  @author  */
+ *  @author Ruize Xu */
 class Game {
 
     /** Number of milliseconds in 1 second. */
