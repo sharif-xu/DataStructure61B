@@ -150,13 +150,13 @@ class Board {
     /** Return true iff FROM - TO is a legal move for the player currently on
      *  move. */
     boolean isLegal(Square from, Square to) {
+        if (!from.isValidMove(to)) {
+            return false;
+        }
         Piece fromP = get(from);
         Piece toP = get(to);
         int distance = from.distance(to);
         int direction = from.direction(to);
-        if (!from.isValidMove(to)) {
-            return false;
-        }
         if (fromP == toP) {
             return false;
         }

@@ -2,10 +2,13 @@
  * University of California.  All rights reserved. */
 package loa;
 
+import javax.swing.text.MutableAttributeSet;
+import java.awt.*;
+
 import static loa.Piece.*;
 
 /** An automated Player.
- *  @author
+ *  @author Ruize Xu
  */
 class MachinePlayer extends Player {
 
@@ -62,7 +65,7 @@ class MachinePlayer extends Player {
         return _foundMove;
     }
 
-    /** Find a move from position BOARD and return its value, recording
+     /** Find a move from position BOARD and return its value, recording
      *  the move found in _foundMove iff SAVEMOVE. The move
      *  should have maximal value or have value > BETA if SENSE==1,
      *  and minimal value or value < ALPHA if SENSE==-1. Searches up to
@@ -71,16 +74,132 @@ class MachinePlayer extends Player {
      *  on BOARD, does not set _foundMove. */
     private int findMove(Board board, int depth, boolean saveMove,
                          int sense, int alpha, int beta) {
+        /**
+         * if depth == 0 ...:
+         *  Do something to get value of that node.
+         * bestscore = 0;
+         * for move in moves:
+         *  score = findMove(update_b, depth - 1, ...)
+         *  if score better than the best score:
+         *      bestscore = score;
+         *  if maximizing:
+         *      alpha = max(score, alpha);
+         *  else:
+         *      beta = min(score, beta);
+         *  if alpha >= beta:
+         *      prune;
+         * return bestscore;
+         */
         // FIXME
-        if (saveMove) {
-            _foundMove = null; // FIXME
+        if (board.piecesContiguous(WP)) {
+            return WINNING_VALUE;
         }
-        return 0; // FIXME
+        if (board.piecesContiguous(BP)) {
+            return -WINNING_VALUE;
+        }
+        if (depth == 0) {
+            return heuristic(board);
+        }
+        int score, bestscore = 0;
+        Move temp = null;
+        for (Move move : board.legalMoves()) {
+            if (sense == 1) { //maximize
+                board.makeMove(move);
+                score = findMove(board, depth - 1, false, -1, alpha, beta);
+                board.retract();
+                bestscore = -INFTY;
+                if (bestscore < score) {
+                    bestscore = score;
+                    temp = move;
+                }
+                if (bestscore > beta) {
+                    break;
+                }
+                alpha = Math.max(alpha, bestscore);
+            } else { //minimize
+                board.makeMove(move);
+                score = findMove(board, depth - 1, false, 1, alpha, beta);
+                board.retract();
+                bestscore = INFTY;
+                if (bestscore > score) {
+                    bestscore = score;
+                    temp = move;
+                }
+                if (bestscore < alpha) {
+                    break;
+                }
+                beta = Math.min(beta, score);
+                if (alpha >= beta) {
+                    break;
+                }
+            }
+            if (alpha >= beta) {
+                break;
+            }
+        }
+        if (saveMove) {
+            _foundMove = temp;
+        }
+
+//        int score, bestscore = 0;
+//        Move temp = null;
+//        if (sense == 1){
+//            int maxscore = -INFTY;
+//            for (Move move : board.legalMoves()) {
+//                board.makeMove(move);
+//                score = findMove(board, depth - 1, false, -1, alpha, beta);
+//                board.retract();
+//                if (maxscore < score) {
+//                    maxscore = score;
+//                    temp = move;
+//                    bestscore = maxscore;
+//                }
+//                if (maxscore > beta) {
+//                    break;
+//                }
+//                alpha = Math.max(alpha, maxscore);
+//                if (alpha >= beta) {
+//                    break;
+//                }
+//            }
+//            if (saveMove) {
+//                _foundMove = temp;
+//            }
+//        } else {
+//            int minscore = INFTY;
+//            for (Move move : board.legalMoves()) {
+//                board.makeMove(move);
+//                score = findMove(board, depth - 1, false, 1, alpha, beta);
+//                board.retract();
+//                if (minscore > score) {
+//                    minscore = score;
+//                    temp = move;
+//                    bestscore = minscore;
+//                }
+//                if (minscore < alpha) {
+//                    break;
+//                }
+//                beta = Math.min(beta, score);
+//                if (alpha >= beta) {
+//                    break;
+//                }
+//            }
+//            if (saveMove) {
+//                _foundMove = temp;
+//            }
+//        }
+        return bestscore;
     }
 
     /** Return a search depth for the current position. */
     private int chooseDepth() {
-        return 1;  // FIXME
+        return 3;
+    }
+
+    private int heuristic(Board board) {
+        int max = board.getRegionSizes(WP).size();
+        int min = board.getRegionSizes(BP).size();
+        return min - max;
     }
 
     // FIXME: Other methods, variables here.
