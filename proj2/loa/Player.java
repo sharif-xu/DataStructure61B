@@ -9,7 +9,11 @@ import static loa.Piece.*;
  */
 public abstract class Player {
 
-    /** a player that plays the side pieces in game. */
+    /**
+     * a player that plays the side pieces in game.
+     * @param side Piece
+     * @param game Game
+     */
     Player(Piece side, Game game) {
         _side = side;
         _game = game;
