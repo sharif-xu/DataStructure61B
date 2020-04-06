@@ -2,8 +2,6 @@
  * University of California.  All rights reserved. */
 package loa;
 
-import net.sf.saxon.expr.instruct.ITemplateCall;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -73,7 +71,8 @@ class Board {
         if (board == this) {
             return;
         } else {
-            System.arraycopy(board._board, 0, this._board, 0, BOARD_SIZE * BOARD_SIZE);
+            System.arraycopy(board._board, 0, this._board,
+                    0, BOARD_SIZE * BOARD_SIZE);
             this._turn = board._turn;
             this._moveLimit = DEFAULT_MOVE_LIMIT;
         }
@@ -172,8 +171,8 @@ class Board {
     /**
      * Helper function for calculate the numeber of !EMP pieces in
      * certain direction.
-     * @param direction
-     * @param from
+     * @param direction int
+     * @param from from
      * @return
      */
     int calcNumPiece(int direction, Square from) {
@@ -186,7 +185,7 @@ class Board {
         int count = 1;
         for (int i = 0; i < BOARD_SIZE; i++) {
             Square temp1 = from.moveDest(direction, i);
-            Square temp2 = from.moveDest(opDir,i);
+            Square temp2 = from.moveDest(opDir, i);
             if (temp1 != null) {
                 if (get(temp1) != EMP) {
                     count++;
@@ -215,8 +214,8 @@ class Board {
             Piece currentP = _board[i];
             if (currentP == _turn) {
                 for (int j = 0; j < _board.length; j++) {
-                   Square nextSq = ALL_SQUARES[j];
-                   Piece nextP = _board[nextSq.index()];
+                    Square nextSq = ALL_SQUARES[j];
+                    Piece nextP = _board[nextSq.index()];
                     if (currentP != nextP) {
                         if (isLegal(currentSq, nextSq)) {
                             allLegalMoves.add(Move.mv(currentSq, nextSq));
@@ -242,12 +241,16 @@ class Board {
     /** Return the winning side, if any.  If the game is not over, result is
      *  null.  If the game has ended in a tie, returns EMP. */
     Piece winner() {
+        boolean allNotContiguous = (!piecesContiguous(_turn)
+                && !piecesContiguous(_turn.opposite()));
+        boolean allContiguous = (piecesContiguous(_turn)
+                && piecesContiguous(_turn.opposite()));
         if (!_winnerKnown) {
             if (_moves.size() < _moveLimit) {
-                if (!piecesContiguous(_turn) && !piecesContiguous(_turn.opposite())) {
+                if (allNotContiguous) {
                     return null;
                 }
-                if (piecesContiguous(_turn) && piecesContiguous(_turn.opposite())) {
+                if (allContiguous) {
                     _winner =  _turn.opposite();
                 }
                 if (piecesContiguous(_turn)) {
@@ -257,10 +260,10 @@ class Board {
                     _winner = _turn.opposite();
                 }
             } else if (_moves.size() == _moveLimit) {
-                if (!piecesContiguous(_turn) && !piecesContiguous(_turn.opposite())) {
+                if (allNotContiguous) {
                     return EMP;
                 }
-                if (piecesContiguous(_turn) && piecesContiguous(_turn.opposite())) {
+                if (allContiguous) {
                     _winner =  _turn.opposite();
                 }
                 if (piecesContiguous(_turn)) {
@@ -317,7 +320,7 @@ class Board {
         int distance = from.distance(to);
         for (int i = 0; i < distance; i++) {
             Square temp = from.moveDest(dir, i);
-            if(temp != null) {
+            if (temp != null) {
                 if (get(temp) == get(from).opposite()) {
                     return true;
                 }
@@ -375,12 +378,14 @@ class Board {
             }
             if (_board[i] == BP) {
                 if (!visited[row][col]) {
-                    _blackRegionSizes.add(numContig(ALL_SQUARES[i], visited, BP));
+                    _blackRegionSizes.add(numContig(ALL_SQUARES[i],
+                            visited, BP));
                 }
             }
             if (_board[i] == WP) {
                 if (!visited[row][col]) {
-                    _whiteRegionSizes.add(numContig(ALL_SQUARES[i], visited, WP));
+                    _whiteRegionSizes.add(numContig(ALL_SQUARES[i],
+                            visited, WP));
                 }
             }
         }

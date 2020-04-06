@@ -2,9 +2,6 @@
  * University of California.  All rights reserved. */
 package loa;
 
-import javax.swing.text.MutableAttributeSet;
-import java.awt.*;
-
 import static loa.Piece.*;
 
 /** An automated Player.
@@ -74,23 +71,6 @@ class MachinePlayer extends Player {
      *  on BOARD, does not set _foundMove. */
     private int findMove(Board board, int depth, boolean saveMove,
                          int sense, int alpha, int beta) {
-        /**
-         * if depth == 0 ...:
-         *  Do something to get value of that node.
-         * bestscore = 0;
-         * for move in moves:
-         *  score = findMove(update_b, depth - 1, ...)
-         *  if score better than the best score:
-         *      bestscore = score;
-         *  if maximizing:
-         *      alpha = max(score, alpha);
-         *  else:
-         *      beta = min(score, beta);
-         *  if alpha >= beta:
-         *      prune;
-         * return bestscore;
-         */
-        // FIXME
         if (depth == 0) {
             int max = board.getRegionSizes(WP).size();
             int min = board.getRegionSizes(BP).size();
@@ -102,7 +82,6 @@ class MachinePlayer extends Player {
         if (board.winner() == BP) {
             return -WINNING_VALUE;
         }
-
         int score, bestscore = 0;
         Move temp = null;
         if (sense == 1) {
@@ -115,7 +94,7 @@ class MachinePlayer extends Player {
                     bestscore = score;
                     temp = move;
                 }
-                if (score > beta) {
+                if (alpha > beta) {
                     break;
                 }
                 alpha = Math.max(alpha, bestscore);
@@ -130,7 +109,7 @@ class MachinePlayer extends Player {
                     bestscore = score;
                     temp = move;
                 }
-                if (alpha > score) {
+                if (alpha > beta) {
                     break;
                 }
                 beta = Math.min(beta, bestscore);
