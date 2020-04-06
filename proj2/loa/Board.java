@@ -240,16 +240,34 @@ class Board {
      *  null.  If the game has ended in a tie, returns EMP. */
     Piece winner() {
         if (!_winnerKnown) {
-            if (_moves.size() > _moveLimit) {
-                return EMP;
-            }
-            if (!piecesContiguous(_turn) && !piecesContiguous(_turn.opposite())) {
-                return null;
-            }
-            if (piecesContiguous(_turn)) {
-                _winner = _turn;
+            if (_moves.size() < _moveLimit) {
+                if (!piecesContiguous(_turn) && !piecesContiguous(_turn.opposite())) {
+                    return null;
+                }
+                if (piecesContiguous(_turn) && piecesContiguous(_turn.opposite())) {
+                    _winner =  _turn.opposite();
+                }
+                if (piecesContiguous(_turn)) {
+                    _winner = _turn;
+                }
+                if (piecesContiguous(_turn.opposite())) {
+                    _winner = _turn.opposite();
+                }
+            } else if (_moves.size() == _moveLimit) {
+                if (!piecesContiguous(_turn) && !piecesContiguous(_turn.opposite())) {
+                    return EMP;
+                }
+                if (piecesContiguous(_turn) && piecesContiguous(_turn.opposite())) {
+                    _winner =  _turn.opposite();
+                }
+                if (piecesContiguous(_turn)) {
+                    _winner = _turn;
+                }
+                if (piecesContiguous(_turn.opposite())) {
+                    _winner = _turn.opposite();
+                }
             } else {
-                _winner = _turn.opposite();
+                return EMP;
             }
             _winnerKnown = true;
         }

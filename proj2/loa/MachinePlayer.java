@@ -91,10 +91,10 @@ class MachinePlayer extends Player {
          * return bestscore;
          */
         // FIXME
-        if (board.piecesContiguous(WP)) {
+        if (board.winner() == WP) {
             return WINNING_VALUE;
         }
-        if (board.piecesContiguous(BP)) {
+        if (board.winner() == BP) {
             return -WINNING_VALUE;
         }
         if (depth == 0) {
@@ -102,92 +102,43 @@ class MachinePlayer extends Player {
         }
         int score, bestscore = 0;
         Move temp = null;
-        for (Move move : board.legalMoves()) {
-            if (sense == 1) { //maximize
+        if (sense == 1) {
+            bestscore = -INFTY;
+            for (Move move : board.legalMoves()) {
+
                 board.makeMove(move);
                 score = findMove(board, depth - 1, false, -1, alpha, beta);
                 board.retract();
-                bestscore = -INFTY;
                 if (bestscore < score) {
                     bestscore = score;
                     temp = move;
                 }
-                if (bestscore > beta) {
+
+                if (score > beta) {
                     break;
                 }
                 alpha = Math.max(alpha, bestscore);
-            } else { //minimize
+            }
+        } else {
+            bestscore = INFTY;
+            for (Move move : board.legalMoves()) {
+
                 board.makeMove(move);
                 score = findMove(board, depth - 1, false, 1, alpha, beta);
                 board.retract();
-                bestscore = INFTY;
                 if (bestscore > score) {
                     bestscore = score;
                     temp = move;
                 }
-                if (bestscore < alpha) {
+                if (alpha > score) {
                     break;
                 }
-                beta = Math.min(beta, score);
-                if (alpha >= beta) {
-                    break;
-                }
-            }
-            if (alpha >= beta) {
-                break;
+                beta = Math.min(beta, bestscore);
             }
         }
         if (saveMove) {
             _foundMove = temp;
         }
-
-//        int score, bestscore = 0;
-//        Move temp = null;
-//        if (sense == 1){
-//            int maxscore = -INFTY;
-//            for (Move move : board.legalMoves()) {
-//                board.makeMove(move);
-//                score = findMove(board, depth - 1, false, -1, alpha, beta);
-//                board.retract();
-//                if (maxscore < score) {
-//                    maxscore = score;
-//                    temp = move;
-//                    bestscore = maxscore;
-//                }
-//                if (maxscore > beta) {
-//                    break;
-//                }
-//                alpha = Math.max(alpha, maxscore);
-//                if (alpha >= beta) {
-//                    break;
-//                }
-//            }
-//            if (saveMove) {
-//                _foundMove = temp;
-//            }
-//        } else {
-//            int minscore = INFTY;
-//            for (Move move : board.legalMoves()) {
-//                board.makeMove(move);
-//                score = findMove(board, depth - 1, false, 1, alpha, beta);
-//                board.retract();
-//                if (minscore > score) {
-//                    minscore = score;
-//                    temp = move;
-//                    bestscore = minscore;
-//                }
-//                if (minscore < alpha) {
-//                    break;
-//                }
-//                beta = Math.min(beta, score);
-//                if (alpha >= beta) {
-//                    break;
-//                }
-//            }
-//            if (saveMove) {
-//                _foundMove = temp;
-//            }
-//        }
         return bestscore;
     }
 
@@ -199,10 +150,8 @@ class MachinePlayer extends Player {
     private int heuristic(Board board) {
         int max = board.getRegionSizes(WP).size();
         int min = board.getRegionSizes(BP).size();
-        return min - max;
+        return min-max;
     }
-
-    // FIXME: Other methods, variables here.
 
     /** Used to convey moves discovered by findMove. */
     private Move _foundMove;
