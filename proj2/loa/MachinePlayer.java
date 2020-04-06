@@ -91,21 +91,23 @@ class MachinePlayer extends Player {
          * return bestscore;
          */
         // FIXME
+        if (depth == 0) {
+            int max = board.getRegionSizes(WP).size();
+            int min = board.getRegionSizes(BP).size();
+            return min - max;
+        }
         if (board.winner() == WP) {
             return WINNING_VALUE;
         }
         if (board.winner() == BP) {
             return -WINNING_VALUE;
         }
-        if (depth == 0) {
-            return heuristic(board);
-        }
+
         int score, bestscore = 0;
         Move temp = null;
         if (sense == 1) {
             bestscore = -INFTY;
             for (Move move : board.legalMoves()) {
-
                 board.makeMove(move);
                 score = findMove(board, depth - 1, false, -1, alpha, beta);
                 board.retract();
@@ -113,7 +115,6 @@ class MachinePlayer extends Player {
                     bestscore = score;
                     temp = move;
                 }
-
                 if (score > beta) {
                     break;
                 }
@@ -122,7 +123,6 @@ class MachinePlayer extends Player {
         } else {
             bestscore = INFTY;
             for (Move move : board.legalMoves()) {
-
                 board.makeMove(move);
                 score = findMove(board, depth - 1, false, 1, alpha, beta);
                 board.retract();
@@ -145,12 +145,6 @@ class MachinePlayer extends Player {
     /** Return a search depth for the current position. */
     private int chooseDepth() {
         return 3;
-    }
-
-    private int heuristic(Board board) {
-        int max = board.getRegionSizes(WP).size();
-        int min = board.getRegionSizes(BP).size();
-        return min-max;
     }
 
     /** Used to convey moves discovered by findMove. */

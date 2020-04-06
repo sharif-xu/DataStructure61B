@@ -1,0 +1,15 @@
+# Test the limit command.
+#* java -ea loa.Main
+manual white
+limit 5
+d8-d6
+a3-c3
+d1-f3
+a6-c8
+f8-f5
+a2-c2
+f1-a1
+a5-b6
+c1-e3
+h6-e6
+#*win+

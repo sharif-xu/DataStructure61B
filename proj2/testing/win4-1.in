@@ -1,0 +1,47 @@
+# Test for win with simultaneous formation of single regions for both players.
+#* java -ea loa.Main
+manual white
+set b7 white white
+set c7 white white
+set d7 white white
+set a7 - white
+set e6 white white
+set f6 white white
+set h7 - white
+set h6 - white
+set h5 - white
+set h4 - white
+set h3 - white
+set g6 white white
+set e5 white white
+set d5 white white
+set c4 white white
+set b5 white white
+set a6 - white
+set a5 - white
+set a4 - white
+set a3 - white
+set a2 - white
+set b1 white white
+set c6 black black
+set d6 black black
+set c5 black black
+set b4 black black
+set e4 black black
+set h2 - black
+set c1 - white
+set d1 - white
+set e1 - white
+set f1 - white
+set g1 - white
+set b8 - white
+set c8 - white
+set d8 - white
+set e8 - white
+set f8 - white
+set g8 - white
+dump
+b1-e4
+#*win+
+dump
+quit

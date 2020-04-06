@@ -1,6 +1,6 @@
 #*java -ea loa.Main
-# Set up a winnable position and see if AI can win.
-seed 2198483
+# Same as winnable1.inp, but different seed.
+seed 2203312
 manual White
 d1-b3
 h5-g4

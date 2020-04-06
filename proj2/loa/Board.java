@@ -88,7 +88,9 @@ class Board {
      *  to NEXT, if NEXT is not null. */
     void set(Square sq, Piece v, Piece next) {
         _board[sq.index()] = v;
-        _turn = next;
+        if (next != null) {
+            _turn = next;
+        }
     }
 
     /** Set the square at SQ to V, without modifying the side that
@@ -140,6 +142,7 @@ class Board {
             set(to, EMP);
             set(from, currentTo, currentTo);
         }
+        _subsetsInitialized = false;
     }
 
     /** Return the Piece representing who is next to move. */
