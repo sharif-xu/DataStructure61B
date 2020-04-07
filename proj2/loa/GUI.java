@@ -40,6 +40,12 @@ class GUI extends TopLevel implements View, Reporter {
         super(title, true);
         addMenuButton("Game->New", this::newGame);
         addMenuButton("Game->Quit", this::quit);
+        addMenuButton("Game->Undo", this::undo);
+        addMenuButton("Game->Switch->autoBlack", this::autoBlack);
+        addMenuButton("Game->Switch->autoWhite", this::autoWhite);
+        addMenuButton("Game->Switch->manualBlack", this::manualBlack);
+        addMenuButton("Game->Switch->manualWhite", this::manualWhite);
+        addMenuButton("Game->Help", this::help);
 
         _widget = new BoardWidget(_pendingCommands);
         add(_widget,
@@ -50,6 +56,33 @@ class GUI extends TopLevel implements View, Reporter {
                  new LayoutSpec("x", 0, "y", 0,
                                 "height", 1,
                                 "width", 3));
+
+    }
+    /** Response to "autoBlack" button click. */
+    private void autoBlack(String dummy) {
+        _pendingCommands.offer("auto Black");
+    }
+    /** Response to "autoWhite" button click. */
+    private void autoWhite(String dummy) {
+        _pendingCommands.offer("auto White");
+    }
+    /** Response to "manualBlack" button click. */
+    private void manualBlack(String dummy) {
+        _pendingCommands.offer("manual Black");
+    }
+    /** Response to "manualWhite" button click. */
+    private void manualWhite(String dummy) {
+        _pendingCommands.offer("manual White");
+    }
+
+    /** Response to "undo" button click. */
+    private void undo(String dummy) {
+        _pendingCommands.offer("undo");
+    }
+
+    /** Response to "help" button click. */
+    private void help(String dummy) {
+        displayText("Help", "loa/Help.html");
     }
 
     /** Response to "Quit" button click. */

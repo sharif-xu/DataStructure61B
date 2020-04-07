@@ -120,11 +120,14 @@ class BoardWidget extends Pad {
 
     /** Handle a mouse-button push on S. */
     private void mousePressed(Square s) {
+        _pressSquare = s;
         repaint();
     }
 
     /** Handle a mouse-button release on S. */
     private void mouseReleased(Square s) {
+        String command = _pressSquare.toString() + "-" + s.toString();
+        _commands.add(command);
         repaint();
     }
 
@@ -194,5 +197,8 @@ class BoardWidget extends Pad {
 
     /** True iff accepting moves from user. */
     private boolean _acceptingMoves;
+
+    /** Use to store the Square that mousePressed() gets. */
+    private Square _pressSquare;
 
 }

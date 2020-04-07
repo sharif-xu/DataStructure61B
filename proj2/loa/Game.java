@@ -127,6 +127,9 @@ class Game {
             case "limit":
                 limitCommand(command.group(2));
                 break;
+            case "undo":
+                undoCommand();
+                break;
             case "?": case "help":
                 help();
                 break;
@@ -224,6 +227,16 @@ class Game {
     private void limitCommand(String limit) {
         try {
             _board.setMoveLimit(Integer.parseInt(limit));
+        } catch (NumberFormatException excp) {
+            throw new IllegalArgumentException("badly formed numeral");
+        }
+    }
+
+    /** Undo the command that Player press last round.*/
+    private void undoCommand() {
+        try {
+            _board.retract();
+            _board.retract();
         } catch (NumberFormatException excp) {
             throw new IllegalArgumentException("badly formed numeral");
         }

@@ -67,8 +67,6 @@ public class Main {
         } else if (options.contains("--display")) {
             try {
                 System.in.close();
-                System.err.println("Display option not implemented.");
-                System.exit(2);
             } catch (IOException dummy) {
                 /* Ignore IOException. */
             }
