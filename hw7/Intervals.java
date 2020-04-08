@@ -25,7 +25,7 @@ public class Intervals {
         int range = max - min;
         int[] count = new int[range];
         for (int[] temp : intervals) {
-            for (int i = temp[0] + min; i < temp[1] + min; i++) {
+            for (int i = temp[0] - min; i < temp[1] - min; i++) {
                 count[i] = 1;
             }
         }
