@@ -14,6 +14,9 @@ public class Intervals {
      *  total length covered by the union of the intervals. */
     public static int coveredLength(List<int[]> intervals) {
         int max = -1000000, min = 0;
+        if (intervals.size() == 0) {
+            return 0;
+        }
         for (int[] temp : intervals) {
             if (max < temp[1]) {
                 max = temp[1];
