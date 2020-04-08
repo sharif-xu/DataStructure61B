@@ -13,23 +13,29 @@ public class Intervals {
      *  <x,y> with x <= y, representing intervals of ints, this returns the
      *  total length covered by the union of the intervals. */
     public static int coveredLength(List<int[]> intervals) {
-        int max = 0;
+        int max = -1000000, min = 0;
         for (int[] temp : intervals) {
             if (max < temp[1]) {
                 max = temp[1];
             }
+            if (min > temp[0]) {
+                min = temp[0];
+            }
         }
-        int[] count = new int[max];
+        int range = max - min;
+        int[] count = new int[range];
         for (int[] temp : intervals) {
-            for (int i = temp[0]; i < temp[1]; i++) {
+            for (int i = temp[0] + min; i < temp[1] + min; i++) {
                 count[i] = 1;
             }
         }
         int count1 = 0;
-        for (int i = 1; i < count.length; i++) {
-           count[i] += count[i - 1];
+        for (int i = 0; i < count.length; i++) {
+            if (count[i] == 1) {
+                count1++;
+            }
         }
-        return count[max - 1];
+        return count1;
     }
 
     /** Test intervals. */
