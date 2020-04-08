@@ -6,15 +6,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** HW #7, Sorting ranges.
- *  @author
+ *  @author Ruize Xu
   */
 public class Intervals {
     /** Assuming that INTERVALS contains two-element arrays of integers,
      *  <x,y> with x <= y, representing intervals of ints, this returns the
      *  total length covered by the union of the intervals. */
     public static int coveredLength(List<int[]> intervals) {
-        // REPLACE WITH APPROPRIATE STATEMENTS.
-        return 0;
+        int max = 0;
+        for (int[] temp : intervals) {
+            if (max < temp[1]) {
+                max = temp[1];
+            }
+        }
+        int[] count = new int[max];
+        for (int[] temp : intervals) {
+            for (int i = temp[0]; i < temp[1]; i++) {
+                count[i] = 1;
+            }
+        }
+        int count1 = 0;
+        for (int i = 0; i < count.length; i++) {
+            if (count[i] == 1) {
+                count1++;
+            }
+        }
+        return count1;
     }
 
     /** Test intervals. */

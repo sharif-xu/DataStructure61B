@@ -123,7 +123,7 @@ public class MySortingAlgorithmsTest {
         for (SortingAlgorithm sa : algorithms) {
 
             // Test the algorithm for 1000 random inputs.
-            for (int i = 0; i < 1000; i++) {
+            for (int i = 0; i < 1; i++) {
                 int[] original = BenchmarkUtility.randomInts(numInts, maxValue);
                 int[] correct = BenchmarkUtility.copy(original);
                 javaSort.sort(correct, k);

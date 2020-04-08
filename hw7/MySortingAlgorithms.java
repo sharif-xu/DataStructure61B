@@ -42,7 +42,13 @@ public class MySortingAlgorithms {
     public static class InsertionSort implements SortingAlgorithm {
         @Override
         public void sort(int[] array, int k) {
-            // FIXME
+            for (int i = 1; i < k; i++) {
+                for (int j = i; j > 0; j--) {
+                    if (array[j] < array[j - 1]) {
+                        swap(array, j, j - 1);
+                    }
+                }
+            }
         }
 
         @Override
@@ -60,7 +66,17 @@ public class MySortingAlgorithms {
     public static class SelectionSort implements SortingAlgorithm {
         @Override
         public void sort(int[] array, int k) {
-            // FIXME
+            for (int i = 0; i < k; i++) {
+                int currentMin = array[i];
+                int currentIndex = i;
+                for (int j = i; j < k; j++) {
+                    if (array[j] < currentMin) {
+                        currentMin = array[j];
+                        currentIndex = j;
+                    }
+                }
+                swap(array, i, currentIndex);
+            }
         }
 
         @Override
@@ -77,10 +93,38 @@ public class MySortingAlgorithms {
     public static class MergeSort implements SortingAlgorithm {
         @Override
         public void sort(int[] array, int k) {
-            // FIXME
+            if (array == null || array.length < 2) {
+                return;
+            }
+            process(array, 0, k - 1);
         }
 
-        // may want to add additional methods
+        public static void process(int[] arr, int left, int right) {
+            if (left == right) {
+                return;
+            }
+            int mid = left +((right - left) >> 1);
+            process(arr, left ,mid);
+            process(arr, mid + 1, right);
+            merge(arr, left, mid, right);
+        }
+
+        public static void merge(int[] arr, int left, int mid, int right) {
+            int[] help = new int[right - left + 1];
+            int p1 = left;
+            int p2 = mid + 1;
+            int i = 0;
+            while (p1 <= mid && p2 <= right) {
+                help[i++] = arr[p1] < arr[p2] ? arr[p1++] : arr[p2++];
+            }
+            while (p1 <= mid) {
+                help[i++] = arr[p1++];
+            }
+            while (p2 <= right) {
+                help[i++] = arr[p2++];
+            }
+            if (help.length >= 0) System.arraycopy(help, 0, arr, left + 0, help.length);
+        }
 
         @Override
         public String toString() {
@@ -148,7 +192,35 @@ public class MySortingAlgorithms {
     public static class LSDSort implements SortingAlgorithm {
         @Override
         public void sort(int[] a, int k) {
-            // FIXME
+            int[] b = new int[k];
+            System.arraycopy(a, 0, b, 0, k);
+            int max = b[0];
+            for (int i = 1; i < k; i++) {
+                if (max < b[i])
+                    max = b[i];
+            }
+            double digit = Math.pow(10, String.valueOf(max).length());
+            int currentDigit = 1;
+            int[][] bucket = new int[10][k];
+            int[] num = new int[10];
+            while (currentDigit < digit) {
+                for (int i : b) {
+                    int m = (i / currentDigit) % 10;
+                    bucket[m][num[m]] = i;
+                    num[m]++;
+                }
+                int c = 0;
+                for (int i = 0; i < 10; i++) {
+                    if (num[i] != 0) {
+                        for (int j = 0; j < num[i]; j++) {
+                            b[c++] = bucket[i][j];
+                        }
+                    }
+                    num[i] = 0;
+                }
+                currentDigit = currentDigit * 10;
+            }
+            System.arraycopy(b, 0, a, 0, k);
         }
 
         @Override
