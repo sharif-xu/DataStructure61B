@@ -26,12 +26,10 @@ public class Intervals {
             }
         }
         int count1 = 0;
-        for (int i = 0; i < count.length; i++) {
-            if (count[i] == 1) {
-                count1++;
-            }
+        for (int i = 1; i < count.length; i++) {
+           count[i] += count[i - 1];
         }
-        return count1;
+        return count[max - 1];
     }
 
     /** Test intervals. */
