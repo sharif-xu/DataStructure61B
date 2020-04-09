@@ -1,15 +1,21 @@
 package capers;
 
+import com.sun.xml.internal.xsom.impl.scd.Iterators;
+import edu.neu.ccs.XString;
+
 import java.io.File;
 import java.io.Serializable;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 
 /** Represents a dog that can be serialized.
  * @author Sean Dooher
 */
-public class Dog { // FIXME
+public class Dog {
 
     /** Folder that dogs live in. */
-    static final File DOG_FOLDER = null; // FIXME
+    static final File DOG_FOLDER =  new File(".capers/dogs");
 
     /**
      * Creates a dog object with the specified parameters.
@@ -30,7 +36,19 @@ public class Dog { // FIXME
      * @return Dog read from file
      */
     public static Dog fromFile(String name) {
-        // FIXME
+        String fileName = name + ".txt";
+        File[] allFile = DOG_FOLDER.listFiles();
+        if (allFile == null) {
+            return null;
+        } else {
+            for (File file : allFile) {
+                if (file.getName().equals(fileName)) {
+                    ArrayList<String> dog = Utils.readObject(file, ArrayList.class);
+                    return new Dog(dog.get(0), dog.get(1),
+                            Integer.parseInt(dog.get(2)));
+                }
+            }
+        }
         return null;
     }
 
@@ -47,7 +65,12 @@ public class Dog { // FIXME
      * Saves a dog to a file for future use.
      */
     public void saveDog() {
-        // FIXME
+        ArrayList<String> info = new ArrayList<String>();
+        info.add(_name);
+        info.add(_breed);
+        info.add(String.valueOf(_age));
+        File dog = new File(".capers/dogs/" + _name + ".txt");
+        Utils.writeObject(dog, info);
     }
 
     @Override

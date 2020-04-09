@@ -1,6 +1,9 @@
 package capers;
 
+import com.sun.tools.corba.se.idl.Util;
+
 import java.io.File;
+import java.io.IOException;
 
 /** Canine Capers: A Gitlet Prelude.
  * @author Sean Dooher
@@ -10,7 +13,9 @@ public class Main {
     static final File CWD = new File(".");
 
     /** Main metadata folder. */
-    static final File CAPERS_FOLDER = null; // FIXME
+    static final File CAPERS_FOLDER = new File(".capers");
+
+    private static File STORY;
 
     /**
      * Runs one of three commands:
@@ -40,18 +45,23 @@ public class Main {
      *
      * @param args arguments from the command line
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         if (args.length == 0) {
             exitWithError("Must have at least one argument");
         }
         setupPersistence();
         switch (args[0]) {
-        case "story":
-            writeStory(args);
-            break;
-        // FIXME
-        default:
-            exitWithError(String.format("Unknown command: %s", args[0]));
+            case "story":
+                writeStory(args);
+                break;
+            case "dog":
+                makeDog(args);
+                break;
+            case "birthday":
+                celebrateBirthday(args);
+                break;
+            default:
+                exitWithError(String.format("Unknown command: %s", args[0]));
         }
         return;
     }
@@ -66,8 +76,10 @@ public class Main {
      *    - story -- file containing the current story
      *
      */
-    public static void setupPersistence() {
-        // FIXME
+    public static void setupPersistence() throws IOException {
+        CAPERS_FOLDER.mkdir();
+        Dog.DOG_FOLDER.mkdir();
+        STORY = Utils.join(CAPERS_FOLDER, "story.txt");
     }
 
     /**
@@ -77,7 +89,17 @@ public class Main {
      */
     public static void writeStory(String[] args) {
         validateNumArgs("story", args, 2);
-        // FIXME
+        String pastContent = null;
+        if (STORY.exists()) {
+            pastContent = Utils.readObject(STORY, String.class);
+            String cunrrentContent = pastContent + '\n' + args[1];
+            Utils.writeObject(STORY, cunrrentContent);
+            System.out.println(cunrrentContent);
+        } else {
+            Utils.writeObject(STORY, args[1]);
+            String currentContent = Utils.readObject(STORY, String.class);
+            System.out.println(currentContent);
+        }
     }
 
     /**
@@ -88,7 +110,9 @@ public class Main {
      */
     public static void makeDog(String[] args) {
         validateNumArgs("dog", args, 4);
-        // FIXME
+        Dog dog = new Dog(args[1], args[2], Integer.parseInt(args[3]));
+        dog.saveDog();
+        System.out.println(dog.toString());
     }
 
     /**
@@ -99,7 +123,13 @@ public class Main {
      */
     public static void celebrateBirthday(String[] args) {
         validateNumArgs("birthday", args, 2);
-        // FIXME
+        Dog chosen = Dog.fromFile(args[1]);
+        if (chosen == null) {
+            System.out.println("The dog named" + args[1] + "does not exist.");
+            return;
+        }
+        chosen.haveBirthday();
+        chosen.saveDog();
     }
 
     /**
