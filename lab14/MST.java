@@ -1,8 +1,11 @@
+import com.sun.xml.internal.xsom.XSWildcard;
+import com.sun.xml.internal.xsom.impl.scd.Iterators;
+
 import java.util.Arrays;
 import java.util.Comparator;
 
 /** Minimal spanning tree utility.
- *  @author
+ *  @author Ruize Xu
  */
 public class MST {
 
@@ -18,10 +21,20 @@ public class MST {
      *  original edges, just the original edges themselves.) */
     public static int[][] mst(int V, int[][] E) {
         E = Arrays.copyOf(E, E.length);
-        int numEdgesInResult = 0; // FIXME: how many edges should there be in our MST?
+        int numEdgesInResult = V - 1;
         int[][] result = new int[numEdgesInResult][];
-        // FIXME: what other data structures do I need?
-        // FIXME: do Kruskal's Algorithm
+        UnionFind uf = new UnionFind(V);
+        Arrays.sort(E, EDGE_WEIGHT_COMPARATOR);
+        int count = 0;
+        for (int[] edge : E) {
+            if (uf.find(edge[0]) != uf.find(edge[1])) {
+                if (count <= numEdgesInResult) {
+                    result[count] = edge;
+                    count++;
+                    uf.union(edge[0], edge[1]);
+                }
+            }
+        }
         return result;
     }
 
