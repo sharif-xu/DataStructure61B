@@ -31,5 +31,11 @@ used to create a Commit object.
 2. String hasHashName(): Returns hashCode of this commit Node.
 
 
-## Persistence
+## Persistencev 
+Describe your strategy for ensuring that you don’t lose the state of your program across multiple runs. Here are some tips for writing this section:
 
+This section should be structured as a list of all the times you will need to record the state of the program or files. For each case, you must prove that your design ensures correct behavior. For example, explain how you intend to make sure that after we call java gitlet.Main add wug.txt, on the next execution of java gitlet.Main commit -m “modify wug.txt”, the correct commit will be made.
+A good strategy for reasoning about persistence is to identify which pieces of data are needed across multiple calls to Gitlet. Then, prove that the data remains consistent for all future calls.
+This section should also include a description of your .gitlet directory and any files or subdirectories you intend on including there.
+
+ 
