@@ -1,3 +1,4 @@
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashMap;
@@ -26,7 +27,7 @@ import java.util.HashSet;
  * expression implementations, it's just something we've chosen to add. '\d' is,
  * however, standard and that should work as you've learned from lecture.
  *
- * @author
+ * @author Ruize Xu
  *
  *
  * */
@@ -94,7 +95,7 @@ public class NFA {
          * Returns a Set of all the States that can be reached from this
          * State by taking an edge with label C.
          *
-         * If C is EPSILON, the  it returns all the valid States that
+         * If C is EPSILON, then it returns all the valid States that
          * can be reached using  only EPSILON edges (this may span
          * multiple consecutive EPSILON edges).
          *
@@ -102,7 +103,19 @@ public class NFA {
          * return an empty Set. */
         public Set<State> successors(char c) {
             // TODO: Implement this method
-            return new HashSet<State>();
+            if (!_edges.containsKey(c)) {
+                return new HashSet<State>();
+            }
+            if (c == EPSILON) {
+                Set<State> allSuccessor = this._edges.get(c);
+                Set<State> epsilonSucc = new HashSet<>();
+                for (State succ : allSuccessor) {
+                    succ.successors(c);
+                    epsilonSucc.add(succ);
+                }
+                return epsilonSucc;
+            }
+            return this._edges.get(c);
         }
 
         /**
@@ -359,8 +372,21 @@ public class NFA {
      * @param s the query String
      * @return whether or not the string S is accepted by this NFA. */
     public boolean matches(String s) {
-        // TODO: write the matching algorithm
-        return true;
+        Set<State> result = new HashSet<State>();
+        Set<State> allpossiblestartstate =_startState.successors(EPSILON);
+        allpossiblestartstate.add(_startState);
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            for (State state : allpossiblestartstate){
+                if (state._edges.containsKey(c)) {
+                    result.addAll(state.successors(c));
+                    if (result.contains(_acceptState)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /** Returns the pattern used to make this NFA. */
