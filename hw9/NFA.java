@@ -102,20 +102,21 @@ public class NFA {
          * If this State has no outgoing edges with label C, then
          * return an empty Set. */
         public Set<State> successors(char c) {
-            // TODO: Implement this method
             if (!_edges.containsKey(c)) {
                 return new HashSet<State>();
             }
+
+            Set<State> succs = this._edges.get(c);
             if (c == EPSILON) {
-                Set<State> allSuccessor = this._edges.get(c);
-                Set<State> epsilonSucc = new HashSet<>();
-                for (State succ : allSuccessor) {
-                    succ.successors(c);
-                    epsilonSucc.add(succ);
+                Set<State> epsilonSuccs = new HashSet<State>(succs);
+                for (State state: succs) {
+                    epsilonSuccs.addAll(state.successors(EPSILON));
                 }
-                return epsilonSucc;
+                return epsilonSuccs;
+            } else {
+                return succs;
             }
-            return this._edges.get(c);
+
         }
 
         /**
@@ -372,20 +373,46 @@ public class NFA {
      * @param s the query String
      * @return whether or not the string S is accepted by this NFA. */
     public boolean matches(String s) {
-        Set<State> result = new HashSet<State>();
-        Set<State> allpossiblestartstate =_startState.successors(EPSILON);
-        allpossiblestartstate.add(_startState);
+        Set<State> stateSet = _startState.successors(EPSILON);
+        stateSet.add(_startState);
+        Set<State> new_stateSet = new HashSet<State>();
+        if (s.equals("")) {
+            s = "*";
+        }
+
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
-            for (State state : allpossiblestartstate){
-                if (state._edges.containsKey(c)) {
-                    result.addAll(state.successors(c));
-                    if (result.contains(_acceptState)) {
+            if (c == '*') {
+                c = EPSILON;
+            }
+
+            for (State state: stateSet) {
+                new_stateSet.addAll(state.successors(c));
+            }
+            stateSet.clear();
+            stateSet.addAll(new_stateSet);
+            new_stateSet.clear();
+
+            for (State state: stateSet) {
+                if (state._accepting) {
+                    if (i == s.length() - 1) {
+                        return true;
+                    }
+                }
+                new_stateSet.addAll(state.successors(EPSILON));
+            }
+            for (State state: new_stateSet) {
+                if (state._accepting) {
+                    if (i == s.length() - 1) {
                         return true;
                     }
                 }
             }
+            stateSet.clear();
+            stateSet.addAll(new_stateSet);
+            new_stateSet.clear();
         }
+
         return false;
     }
 
