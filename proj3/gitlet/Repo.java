@@ -356,10 +356,12 @@ public class Repo implements Serializable {
         }
     }
 
-    /** This is how we are going to be capable of returns back and forth
-     * in between each hash and the corresponding commit. Takes in a
-     * String UID, and returns the commit object that corresponds
-     * to that UID. */
+    /**
+     * This method is used to find the corresponding Commit object
+     * according to the unique uid it contains.
+     * @param uid String the uid for each Commit object
+     * @return Commit object read from file
+     */
     public Commit  uidToCommit(String uid) {
         File f = new File(".gitlet/commits/" + uid);
         if (f.exists()) {
