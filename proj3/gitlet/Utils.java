@@ -10,6 +10,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -231,5 +232,20 @@ class Utils {
     static void message(String msg, Object... args) {
         System.out.printf(msg, args);
         System.out.println();
+    }
+
+    /** Deserializes file from PATH return OBJECT. **/
+    static Object deserialize(Path path) {
+        File tmp = path.toFile();
+        Object obj =  null;
+        try {
+            ObjectInputStream inp = new ObjectInputStream(
+                    new FileInputStream(tmp));
+            obj = inp.readObject();
+            inp.close();
+        } catch (IOException | ClassNotFoundException excp) {
+            excp.printStackTrace();
+        }
+        return obj;
     }
 }
