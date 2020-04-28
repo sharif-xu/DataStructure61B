@@ -73,7 +73,7 @@ public class Main {
                 Utils.writeObject(new File(".gitlet/repo"), commands);
 
             } else {
-                Util.getMessage(args[0]+" is not a valid command!");
+                Utils.message(args[0]+" is not a valid command!");
                 throw new GitletException();
             }
         } catch (GitletException e) {
