@@ -85,6 +85,15 @@ public class Main {
                             Utils.message("Incorrect Arguments");
                             System.exit(0);
                         }
+                        break;
+                    case "rm":
+                        if (_operand.size() == 1) {
+                            repo.rm(_operand.get(0));
+                        } else {
+                            Utils.message("Incorrect Arguments");
+                            System.exit(0);
+                        }
+                        break;
                     case  "branch":
                         if (_operand.size() == 1) {
                             repo.branch(_operand.get(0));
@@ -92,6 +101,7 @@ public class Main {
                             Utils.message("Incorrect Arguments");
                             System.exit(0);
                         }
+                        break;
                     case "rm-branch":
                         if (_operand.size() == 1) {
                             repo.rmbranch(_operand.get(0));
@@ -99,6 +109,7 @@ public class Main {
                             Utils.message("Incorrect Arguments");
                             System.exit(0);
                         }
+                        break;
                     case "reset":
                         if (_operand.size() == 1) {
                             repo.reset(_operand.get(0));
@@ -106,6 +117,7 @@ public class Main {
                             Utils.message("Incorrect Arguments");
                             System.exit(0);
                         }
+                        break;
                     case "find":
                         if (_operand.size() == 1) {
                             repo.find(_operand.get(0));
@@ -113,7 +125,7 @@ public class Main {
                             Utils.message("Incorrect Arguments");
                             System.exit(0);
                         }
-
+                        break;
                 }
                 Utils.writeObject(new File(".gitlet/repo"), repo);
             } else {

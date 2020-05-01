@@ -29,7 +29,7 @@ public class Blob implements Serializable {
     private String createHashId() {
         String contentToString = Arrays.toString(_contents);
         String insideBlob = _name + contentToString;
-        return Utils.sha1(contentToString);
+        return Utils.sha1(insideBlob);
     }
 
     public String get_name() {

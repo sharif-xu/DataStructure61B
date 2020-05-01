@@ -7,17 +7,6 @@ import java.util.*;
 
 public class Repo implements Serializable {
 
-    private String _currentbranch;
-
-    private String _currentpath;
-
-    private String _command;
-
-    private String _parentid;
-
-    private ArrayList<String> _commitkey;
-
-    private ArrayList<String> _operand;
 
     /** The structure is used to store the head of each branch,
      *  key for filename, and corresponding value is uid of the
@@ -29,9 +18,10 @@ public class Repo implements Serializable {
      * pointing at the commit that we want . */
     private String _head;
 
-    /** Staging Area, maps the name of the file, useful for figuring out
-     * whether we need to swap it out for existing file in commit, or add
-     * it entirely new. */
+    /** Staging area used to store the blob object, key is file name,
+     *  value is the Blob object, help us identify whether the file is
+     *  changed.
+     */
     private HashMap<String, Blob> _stagingArea;
 
     /** Untracked files are like the opposite of the Staging Area,
@@ -44,31 +34,6 @@ public class Repo implements Serializable {
      * that it's pointing to.*/
     private LinkedHashMap<String, Commit> _commit;
 
-    private LinkedHashMap<String, Blob> _staging;
-
-    public String get_currentbranch() {
-        return _currentbranch;
-    }
-
-    public String get_currentpath() {
-        return _currentpath;
-    }
-
-    public String get_command() {
-        return _command;
-    }
-
-    public String get_parentid() {
-        return _parentid;
-    }
-
-    public ArrayList<String> get_commitkey() {
-        return _commitkey;
-    }
-
-    public ArrayList<String> get_operand() {
-        return _operand;
-    }
 
     public HashMap<String, String> get_branches() {
         return _branches;
@@ -90,9 +55,6 @@ public class Repo implements Serializable {
         return _commit;
     }
 
-    public LinkedHashMap<String, Blob> get_staging() {
-        return _staging;
-    }
 
     public Repo() {
         if (!Files.exists(Paths.get(".gitlet"))) {
@@ -123,15 +85,18 @@ public class Repo implements Serializable {
             Utils.message("File does not exist.");
             throw new GitletException();
         }
+        if (_untrackedFiles.contains(filename)) {
+            _untrackedFiles.remove(filename);
+        }
         Blob blob = new Blob(filename);
         String blobHashID = blob.get_hashID();
-        Commit mostRecent = uidToCommit(getHead());
-        HashMap<String, Blob> files = mostRecent.get_blobs();
+        Commit lastCommit = uidToCommit(getHead());
+        HashMap<String, Blob> files = lastCommit.get_blobs();
         File stagingblob = new File(".gitlet/staging/" + blobHashID);
         if (stagingblob.exists()) {
             _stagingArea.remove(filename);
         } else {
-            _stagingArea.put(blobHashID, blob);
+            _stagingArea.put(filename, blob);
             String contents = Utils.readContentsAsString(new File(filename));
             Utils.writeContents(stagingblob, contents);
         }
@@ -142,8 +107,8 @@ public class Repo implements Serializable {
             Utils.message("Please enter a commit message.");
             throw new GitletException();
         }
-        Commit mostRecent = uidToCommit(getHead());
-        HashMap<String, Blob> trackedFiles = mostRecent.get_blobs();
+        Commit lastCommit = uidToCommit(getHead());
+        HashMap<String, Blob> trackedFiles = lastCommit.get_blobs();
         if (trackedFiles == null) {
             trackedFiles = new HashMap<String, Blob>();
         }
@@ -158,8 +123,8 @@ public class Repo implements Serializable {
             Utils.message("No changes added to the commit.");
             throw new GitletException();
         }
-        String[] parent = new String[]{mostRecent.get_uid()};
-        String branch = mostRecent.get_branch();
+        String[] parent = new String[]{lastCommit.get_uid()};
+        String branch = lastCommit.get_branch();
         Commit newCommit = new Commit(msg, parent, branch, trackedFiles);
         String s = newCommit.get_uid();
         File newCommFile = new File(".gitlet/commits/" + s);
@@ -330,6 +295,41 @@ public class Repo implements Serializable {
         _head = branchName;
     }
 
+    public void rm(String fileName) {
+        File file = new File(fileName);
+        Commit last = uidToCommit(getHead());
+        HashMap<String, Blob> trackedFiles = last.get_blobs();
+        boolean flag = false;
+        if (trackedFiles != null) {
+            for (String hashid : trackedFiles.keySet()) {
+                Blob temp = trackedFiles.get(hashid);
+                String blobname = temp.get_name();
+                if (blobname.equals(fileName)) {
+                    flag = true;
+                }
+            }
+        }
+        if (!file.exists() && !flag) {
+            Utils.message("File does not exist.");
+            throw new GitletException();
+        }
+        boolean changed = false;
+        if (_stagingArea.containsKey(fileName)) {
+            _stagingArea.remove(fileName);
+            changed = true;
+        }
+        if (flag) {
+            _untrackedFiles.add(fileName);
+            File toRemove = new File(fileName);
+            Utils.restrictedDelete(toRemove);
+            changed = true;
+        }
+        if (!changed) {
+            Utils.message("No reason to remove the file.");
+            throw new GitletException();
+        }
+    }
+
     public void branch(String branchName) {
         if (!_branches.containsKey(branchName)) {
             _branches.put(branchName, getHead());
@@ -357,8 +357,19 @@ public class Repo implements Serializable {
         Commit c = uidToCommit(commitUid);
         HashMap<String, Blob> blobs = c.get_blobs();
         checkForUntracked(pwd);
-        for (File file : pwd.listFiles()) {
-            if (!blobs.containsKey(file.getName())) {
+        for (File file : Objects.requireNonNull(pwd.listFiles())) {
+            if (file.isDirectory()) {
+                break;
+            }
+            String fileName = file.getName();
+            boolean find = false;
+            for (Blob b : blobs.values()) {
+                if (fileName.equals(b.get_name())) {
+                    find = true;
+                    break;
+                }
+            }
+            if (!find) {
                 if (!Utils.restrictedDelete(file)) {
                     Utils.message("Can not delete file" + file.getName());
                     throw new GitletException();
@@ -366,7 +377,7 @@ public class Repo implements Serializable {
             }
         }
         for (String blobhash : blobs.keySet()) {
-            File f = new File(".gitlet/staging/" + blobs.get(blobhash));
+            File f = new File(".gitlet/staging/" + blobhash);
             String contents = Utils.readContentsAsString(f);
             Utils.writeContents(new File(blobhash), contents);
         }
@@ -374,7 +385,7 @@ public class Repo implements Serializable {
         _branches.put(_head, commitUid);
     }
 
-    public void find (String message) {
+    public void find(String message) {
         File commitDir = new File(".gitlet/commits");
         boolean flag = false;
         for (File commitFile :

@@ -58,6 +58,7 @@ public class Commit implements Serializable {
         _message = message;
         _timestamp = "Thu Jan 1 00:00:00 1970 +0000";
         _uid = generateHash();
+        _branch = "master";
         _blobs = null;
         _parentid = null;
 
