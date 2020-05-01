@@ -23,55 +23,99 @@ public class Main {
             if (validCommand(args[0])) {
                 ArrayList<String> command = new ArrayList<>(Arrays.asList(args));
                 String cwd = System.getProperty("user.dir");
-                Repo commands = null;
+                Repo repo = null;
                 File tmpDir = new File(cwd + "/.gitlet");
                 if (tmpDir.exists()) {
                     File mr =  new File(".gitlet/repo");
                     if (mr.exists()) {
-                        commands = Utils.readObject(mr, Repo.class);
+                        repo = Utils.readObject(mr, Repo.class);
                     }
 
                 }
                 String _command = command.remove(0);
                 ArrayList<String> _operand = command;
                 if (_command.equals("init")) {
-                    commands = new Repo();
+                    repo = new Repo();
                     File mr = new File(".gitlet/repo");
-                    Utils.writeObject(mr, commands);
+                    Utils.writeObject(mr, repo);
                 }
                 switch (_command) {
                     case "add":
                         if (_operand.size() == 1) {
-                            commands.add(_operand.get(0));
+                            repo.add(_operand.get(0));
                             break;
                         } else {
                             System.out.println("Incorrect Argument");
                         }
                     case "log":
                         if (_operand.isEmpty()) {
-                            commands.log();
+                            repo.log();
                             break;
                         } else {
                             System.out.println("Incorrect Arguments");
                         }
+                    case "global-log":
+                        if (_operand.isEmpty()) {
+                            repo.globalLog();
+                            break;
+                        } else {
+                            System.out.println("Incorrect Arguments");
+                        }
+
+
                     case "checkout":
                         if (_operand.size() == 1) {
-                            commands.checkout(_operand.get(0));
+                            repo.checkout(_operand.get(0));
                         } else {
-                            commands.checkout(_operand);
+                            repo.checkout(_operand);
                         }
                         break;
                     case "commit":
                         if (_operand.size() == 1) {
-                            commands.commit(_operand.get(0));
+                            repo.commit(_operand.get(0));
                         } else {
                             Utils.message("Incorrect Arguments");
                             System.exit(0);
                         }
                         break;
-                }
-                Utils.writeObject(new File(".gitlet/repo"), commands);
+                    case "status":
+                        if (_operand.size() == 0) {
+                            repo.status();
+                        } else {
+                            Utils.message("Incorrect Arguments");
+                            System.exit(0);
+                        }
+                    case  "branch":
+                        if (_operand.size() == 1) {
+                            repo.branch(_operand.get(0));
+                        } else {
+                            Utils.message("Incorrect Arguments");
+                            System.exit(0);
+                        }
+                    case "rm-branch":
+                        if (_operand.size() == 1) {
+                            repo.rmbranch(_operand.get(0));
+                        } else {
+                            Utils.message("Incorrect Arguments");
+                            System.exit(0);
+                        }
+                    case "reset":
+                        if (_operand.size() == 1) {
+                            repo.reset(_operand.get(0));
+                        } else {
+                            Utils.message("Incorrect Arguments");
+                            System.exit(0);
+                        }
+                    case "find":
+                        if (_operand.size() == 1) {
+                            repo.find(_operand.get(0));
+                        } else {
+                            Utils.message("Incorrect Arguments");
+                            System.exit(0);
+                        }
 
+                }
+                Utils.writeObject(new File(".gitlet/repo"), repo);
             } else {
                 Utils.message(args[0]+" is not a valid command!");
                 throw new GitletException();

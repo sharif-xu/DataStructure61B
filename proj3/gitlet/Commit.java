@@ -17,6 +17,7 @@ public class Commit implements Serializable {
 
     /**
      * A list of strings of hashes of Blobs that are being tracked.
+     * Key is Blob's hashID, and value is the corresponding Blob object. 
      */
 
     private HashMap<String, Blob> _blobs = new HashMap<>();
