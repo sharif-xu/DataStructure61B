@@ -25,31 +25,29 @@ public class Commit implements Serializable {
     /** An array of Hashes of parents. */
     private String[] _parentid;
 
-    public String get_message() {
+    public String getMessage() {
         return _message;
     }
 
-    public String get_timestamp() {
+    public String getTimestamp() {
         return _timestamp;
     }
 
-    public String get_branch() {
+    public String getBranchName() {
         return _branch;
     }
 
-    public String[] get_parentid() {
-        return _parentid;
-    }
-
-    public HashMap<String, Blob> get_blobs() {
-        return _blobs;
-    }
-
-    public String get_uid() {
+    public String getUid() {
         return _uid;
     }
 
+    public String[] getParentid() {
+        return _parentid;
+    }
 
+    public HashMap<String, Blob> getBlobs() {
+        return _blobs;
+    }
 
     /**
      * Commit constructor called by init command

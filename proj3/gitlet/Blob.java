@@ -32,15 +32,19 @@ public class Blob implements Serializable {
         return Utils.sha1(insideBlob);
     }
 
-    public String get_name() {
+    public String getName() {
         return _name;
     }
 
-    public String get_hashID() {
+    public String getHashID() {
         return _hashID;
     }
 
-    public byte[] get_contents() {
+    public byte[] getContents() {
         return _contents;
+    }
+
+    public String getContentsAsString() {
+        return Arrays.toString(_contents);
     }
 }

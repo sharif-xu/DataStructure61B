@@ -1,7 +1,5 @@
 package gitlet;
 
-import org.checkerframework.checker.units.qual.A;
-
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -67,12 +65,12 @@ public class Repo implements Serializable {
             commits.mkdir();
             File staging = new File(".gitlet/staging");
             staging.mkdir();
-            String id = initial.get_uid();
+            String id = initial.getUid();
             File initialFile = new File(".gitlet/commits/" + id);
             Utils.writeContents(initialFile, Utils.serialize(initial));
             _head = "master";
             _branches = new HashMap<String, String>();
-            _branches.put("master", initial.get_uid());
+            _branches.put("master", initial.getUid());
             _stagingArea = new HashMap<String, Blob>();
             _untrackedFiles = new ArrayList<String>();
         } else {
@@ -87,13 +85,11 @@ public class Repo implements Serializable {
             Utils.message("File does not exist.");
             throw new GitletException();
         }
-        if (_untrackedFiles.contains(filename)) {
-            _untrackedFiles.remove(filename);
-        }
+        _untrackedFiles.remove(filename);
         Blob blob = new Blob(filename);
-        String blobHashID = blob.get_hashID();
+        String blobHashID = blob.getHashID();
         Commit lastCommit = uidToCommit(getHead());
-        HashMap<String, Blob> files = lastCommit.get_blobs();
+        HashMap<String, Blob> files = lastCommit.getBlobs();
         File stagingblob = new File(".gitlet/staging/" + blobHashID);
         if (stagingblob.exists()) {
             _stagingArea.remove(filename);
@@ -110,7 +106,7 @@ public class Repo implements Serializable {
             throw new GitletException();
         }
         Commit lastCommit = uidToCommit(getHead());
-        HashMap<String, Blob> trackedFiles = lastCommit.get_blobs();
+        HashMap<String, Blob> trackedFiles = lastCommit.getBlobs();
         if (trackedFiles == null) {
             trackedFiles = new HashMap<String, Blob>();
         }
@@ -125,16 +121,16 @@ public class Repo implements Serializable {
             Utils.message("No changes added to the commit.");
             throw new GitletException();
         }
-        String[] parent = new String[]{lastCommit.get_uid()};
-        String branch = lastCommit.get_branch();
+        String[] parent = new String[]{lastCommit.getUid()};
+        String branch = lastCommit.getBranchName();
         Commit newCommit = new Commit(msg, parent, branch, trackedFiles);
-        String s = newCommit.get_uid();
+        String s = newCommit.getUid();
         File newCommFile = new File(".gitlet/commits/" + s);
         Utils.writeObject(newCommFile, newCommit);
 
         _stagingArea = new HashMap<String, Blob>();
         _untrackedFiles = new ArrayList<String>();
-        _branches.put(_head, newCommit.get_uid());
+        _branches.put(_head, newCommit.getUid());
     }
 
     public void commit(String msg, String[] parents) {
@@ -143,7 +139,7 @@ public class Repo implements Serializable {
             throw new GitletException();
         }
         Commit lastCommit = uidToCommit(getHead());
-        HashMap<String, Blob> trackedFiles = lastCommit.get_blobs();
+        HashMap<String, Blob> trackedFiles = lastCommit.getBlobs();
         if (trackedFiles == null) {
             trackedFiles = new HashMap<String, Blob>();
         }
@@ -158,15 +154,15 @@ public class Repo implements Serializable {
             Utils.message("No changes added to the commit.");
             throw new GitletException();
         }
-        String branch = lastCommit.get_branch();
+        String branch = lastCommit.getBranchName();
         Commit newCommit = new Commit(msg, parents, branch, trackedFiles);
-        String s = newCommit.get_uid();
+        String s = newCommit.getUid();
         File newCommFile = new File(".gitlet/commits/" + s);
         Utils.writeObject(newCommFile, newCommit);
 
         _stagingArea = new HashMap<String, Blob>();
         _untrackedFiles = new ArrayList<String>();
-        _branches.put(_head, newCommit.get_uid());
+        _branches.put(_head, newCommit.getUid());
     }
 
 
@@ -174,20 +170,20 @@ public class Repo implements Serializable {
         String head = getHead();
         while (head != null) {
             Commit first = uidToCommit(head);
-            if (first.get_parentid() != null && first.get_parentid().length > 1) {
+            if (first.getParentid() != null && first.getParentid().length > 1) {
                 System.out.println("===");
                 System.out.println("commit " + head);
-                String short1 = first.get_parentid()[0].substring(0, 7);
-                String short2 = first.get_parentid()[1].substring(0, 7);
+                String short1 = first.getParentid()[0].substring(0, 7);
+                String short2 = first.getParentid()[1].substring(0, 7);
                 System.out.println("Merge: " + short1 + " " + short2);
-                System.out.println("Date: " + first.get_timestamp());
-                System.out.println(first.get_message());
+                System.out.println("Date: " + first.getTimestamp());
+                System.out.println(first.getMessage());
                 System.out.println();
             } else {
                 System.out.println("===");
                 System.out.println("commit " + head);
-                System.out.println("Date: " + first.get_timestamp());
-                System.out.println(first.get_message());
+                System.out.println("Date: " + first.getTimestamp());
+                System.out.println(first.getMessage());
                 System.out.println();
             }
             head = first.getParentID();
@@ -199,20 +195,20 @@ public class Repo implements Serializable {
         for (File commitFile : Objects.requireNonNull(commitDir.listFiles())) {
             String uid = commitFile.getName();
             Commit temp = uidToCommit(uid);
-            if (temp.get_parentid() != null && temp.get_parentid().length > 1) {
+            if (temp.getParentid() != null && temp.getParentid().length > 1) {
                 System.out.println("===");
                 System.out.println("commit " + uid);
-                String short1 = temp.get_parentid()[0].substring(0, 7);
-                String short2 = temp.get_parentid()[1].substring(0, 7);
+                String short1 = temp.getParentid()[0].substring(0, 7);
+                String short2 = temp.getParentid()[1].substring(0, 7);
                 System.out.println("Merge: " + short1 + " " + short2);
-                System.out.println("Date: " + temp.get_timestamp());
-                System.out.println(temp.get_message());
+                System.out.println("Date: " + temp.getTimestamp());
+                System.out.println(temp.getMessage());
                 System.out.println();
             } else {
                 System.out.println("===");
                 System.out.println("commit " + uid);
-                System.out.println("Date: " + temp.get_timestamp());
-                System.out.println(temp.get_message());
+                System.out.println("Date: " + temp.getTimestamp());
+                System.out.println(temp.getMessage());
                 System.out.println();
             }
         }
@@ -270,13 +266,13 @@ public class Repo implements Serializable {
         }
         commID = shortToLong(commID);
         Commit comm = uidToCommit(commID);
-        HashMap<String, Blob> trackedFiles = comm.get_blobs();
+        HashMap<String, Blob> trackedFiles = comm.getBlobs();
         boolean find = false;
         for (Blob blob : trackedFiles.values())
-            if (blob.get_name().equals(fileName)){
+            if (blob.getName().equals(fileName)){
                 File f = new File(fileName);
                 String p = ".gitlet/staging/";
-                String blobFileName = p + blob.get_hashID();
+                String blobFileName = p + blob.getHashID();
                 File g = new File(blobFileName);
                 String contents = Utils.readContentsAsString(g);
                 Utils.writeContents(f, contents);
@@ -302,11 +298,14 @@ public class Repo implements Serializable {
         }
         String commID = _branches.get(branchName);
         Commit comm = uidToCommit(commID);
-        HashMap<String, Blob> blobs = comm.get_blobs();
+        HashMap<String, Blob> blobs = comm.getBlobs();
         File pwd = new File(System.getProperty("user.dir"));
         checkForUntracked(pwd);
 
         for (File file : Objects.requireNonNull(pwd.listFiles())) {
+            if (file.getName().equals(".gitignore") || file.getName().equals("proj3.iml") || file.getName().equals("Makefile")) {
+                break; // FIXME: Delete
+            }
             if (!file.getName().equals(".gitlet")) {
                 if (!Utils.restrictedDelete(file)) {
                     Utils.message("Can not delete file" + file.getName());
@@ -316,8 +315,8 @@ public class Repo implements Serializable {
         }
         if (blobs != null) {
             for (Blob blob : blobs.values()) {
-                String fileDir = blob.get_name();
-                String blobhash = blob.get_hashID();
+                String fileDir = blob.getName();
+                String blobhash = blob.getHashID();
                 File blobfile = new File(".gitlet/staging/" + blobhash);
                 File file = new File(fileDir);
                 String contents = Utils.readContentsAsString(blobfile);
@@ -331,13 +330,13 @@ public class Repo implements Serializable {
 
     public void rm(String fileName) {
         File file = new File(fileName);
-        Commit last = uidToCommit(getHead());
-        HashMap<String, Blob> trackedFiles = last.get_blobs();
+        Commit lastCommit = uidToCommit(getHead());
+        HashMap<String, Blob> trackedFiles = lastCommit.getBlobs();
         boolean flag = false;
         if (trackedFiles != null) {
-            for (String hashid : trackedFiles.keySet()) {
-                Blob temp = trackedFiles.get(hashid);
-                String blobname = temp.get_name();
+            for (String blobHash : trackedFiles.keySet()) {
+                Blob temp = trackedFiles.get(blobHash);
+                String blobname = temp.getName();
                 if (blobname.equals(fileName)) {
                     flag = true;
                 }
@@ -388,17 +387,20 @@ public class Repo implements Serializable {
     public void reset(String commitUid) {
         commitUid = shortToLong(commitUid);
         Commit c = uidToCommit(commitUid);
-        HashMap<String, Blob> blobs = c.get_blobs();
+        HashMap<String, Blob> blobs = c.getBlobs();
         File pwd = new File(System.getProperty("user.dir"));
         checkForUntracked(pwd);
         for (File file : Objects.requireNonNull(pwd.listFiles())) {
+            if (file.getName().equals(".gitignore") || file.getName().equals("proj3.iml") || file.getName().equals("Makefile")) {
+                break; // FIXME: Delete
+            }
             if (file.isDirectory()) {
                 break;
             }
             String fileName = file.getName();
             boolean find = false;
             for (Blob b : blobs.values()) {
-                if (fileName.equals(b.get_name())) {
+                if (fileName.equals(b.getName())) {
                     find = true;
                     break;
                 }
@@ -411,9 +413,9 @@ public class Repo implements Serializable {
             }
         }
         for (Blob blob : blobs.values()) {
-            String blobhash = blob.get_hashID();
+            String blobhash = blob.getHashID();
             File blobfile = new File(".gitlet/staging/" + blobhash);
-            File file = new File(blob.get_name());
+            File file = new File(blob.getName());
             String contents = Utils.readContentsAsString(blobfile);
             Utils.writeContents(file, contents);
         }
@@ -428,7 +430,7 @@ public class Repo implements Serializable {
                 Objects.requireNonNull(commitDir.listFiles())) {
             String fileName = commitFile.getName();
             Commit temp = uidToCommit(fileName);
-            if (temp.get_message().equals(message)) {
+            if (temp.getMessage().equals(message)) {
                 System.out.println(fileName);
                 flag = true;
             }
@@ -440,6 +442,7 @@ public class Repo implements Serializable {
     }
 
     private void merge(String branchName) {
+        String splitCommitHash = splitPoint(branchName, _head);
         if (_stagingArea.size() != 0 || _untrackedFiles.size() != 0) {
             Utils.message("You have uncommitted changes.");
             throw new GitletException();
@@ -452,7 +455,6 @@ public class Repo implements Serializable {
             Utils.message("Cannot merge a branch with itself.");
             throw new GitletException();
         }
-        String splitCommitHash = splitPoint(branchName, _head);
         if (splitCommitHash.equals(_branches.get(branchName))) {
             Utils.message("Given branch is an ancestor of the current branch.");
             throw new GitletException();
@@ -462,119 +464,154 @@ public class Repo implements Serializable {
             Utils.message("Current branch fast-forwarded.");
             throw new GitletException();
         }
+        checkForUntracked(new File(System.getProperty("user.dir")));
         Commit splitCommit = uidToCommit(splitCommitHash);
-        HashMap<String, Blob> splitBlobs = splitCommit.get_blobs();
-        middleMerge(branchName);
-
         Commit currentHead = uidToCommit(getHead());
-        HashMap<String, Blob> current = currentHead.get_blobs();
         Commit givenHead = uidToCommit(_branches.get(branchName));
-        HashMap<String, Blob> given = givenHead.get_blobs();
+        HashMap<String, Blob> splitBlobs = splitCommit.getBlobs();
+        HashMap<String, Blob> currentBlobs = currentHead.getBlobs();
+        HashMap<String, Blob> givenBlobs = givenHead.getBlobs();
 
-        for (Blob blob : given.values()) {
-            String blobName = blob.get_name();
-            boolean isInSplit = false, isInCurrent = false;
-            boolean isInGiven = false;
-            for (Blob temp : splitBlobs.values()) {
-                if (temp.get_name().equals(blobName)) {
-                    isInSplit = true;
-                    break;
-                }
-            }
-            Blob currentBlob = null;
-            for (Blob temp : current.values()) {
-                if (temp.get_name().equals(blobName)) {
+        for (Blob blob : splitBlobs.values()) {
+            String blobName = blob.getName();
+            boolean isModifiedInCurrent = isModified(blobName, splitBlobs, currentBlobs);
+            boolean isModifiedInGiven = isModified(blobName, splitBlobs, givenBlobs);
+            boolean isInCurrent = false, isInGiven = false;
+            for (Blob temp : currentBlobs.values()) {
+                if (temp.getName().equals(blobName)) {
                     isInCurrent = true;
-                    currentBlob = temp;
                     break;
                 }
             }
-            for (Blob temp : given.values()) {
-                if (temp.get_name().equals(blobName)) {
+            for (Blob temp : givenBlobs.values()) {
+                if (temp.getName().equals(blobName)) {
                     isInGiven = true;
                     break;
                 }
             }
-            if (!isInSplit) {
-                if (!isInCurrent) {
-                    ArrayList<String> args = new ArrayList<>();
-                    args.add(_branches.get(branchName));
-                    args.add("--");
-                    args.add(blobName);
-                    checkout(args);
-                    _stagingArea.put(blobName, given.get(blobName));
-                } else if (isInGiven) {
-                    continue;
-                } else if (isModified(blobName, given, current)) {
-                    String contents = "<<<<<<< HEAD\n";
-                    contents += Arrays.toString(currentBlob.get_contents());
-                    contents += "=======\n";
-                    contents += Arrays.toString(blob.get_contents()) + ">>>>>>>";
-                    Utils.writeContents(new File(blobName), contents);
-                    add(blobName);
-                    Utils.message("Encountered a merge conflict.");
+            if (isInCurrent && !isInGiven) {
+               Utils.restrictedDelete(blobName);
+                rm(blobName);
+               _untrackedFiles.add(blobName);
+               break;
+            }
+            if (isInCurrent && isInGiven) {
+                if (isModifiedInCurrent || !isModifiedInGiven) {
+                    break; //do nothing
+                }
+                //fixme
+            }
+            if (!isInCurrent && isInGiven) {
+                if (!isModifiedInGiven) {
+                    break; //do nothing
                 }
             }
+
         }
+
+        for (Blob blob : givenBlobs.values()) {
+            String blobName = blob.getName();
+            String blobHash = blob.getHashID();
+            boolean isInSplit = false, isInCurrent = false;
+            for (Blob temp : currentBlobs.values()) {
+                if (temp.getName().equals(blobName)) {
+                    isInCurrent = true;
+                    break;
+                }
+            }
+            for (Blob temp : splitBlobs.values()) {
+                if (temp.getName().equals(blobName)) {
+                    isInSplit = true;
+                    break;
+                }
+            }
+            if (!isInCurrent) {
+                ArrayList<String> args = new ArrayList<>();
+                args.add(_branches.get(branchName));
+                args.add("--");
+                args.add(blobName);
+                checkout(args);
+                _stagingArea.put(blobName, givenBlobs.get(blobName));
+            }
+        }
+
+
+
+//        mainMerge(branchName);
+//
+//        for (Blob blob : givenBlobs.values()) {
+//            String blobName = blob.getName();
+//            boolean isInSplit = false, isInCurrent = false;
+//            boolean isInGiven = false;
+//            for (Blob temp : splitBlobs.values()) {
+//                if (temp.getName().equals(blobName)) {
+//                    isInSplit = true;
+//                    break;
+//                }
+//            }
+//            Blob currentBlob = null;
+//            for (Blob temp : currentBlobs.values()) {
+//                if (temp.getName().equals(blobName)) {
+//                    isInCurrent = true;
+//                    currentBlob = temp;
+//                    break;
+//                }
+//            }
+//            for (Blob temp : givenBlobs.values()) {
+//                if (temp.getName().equals(blobName)) {
+//                    isInGiven = true;
+//                    break;
+//                }
+//            }
+//            if (!isInSplit) {
+//                if (!isInCurrent) {
+//                    ArrayList<String> args = new ArrayList<>();
+//                    args.add(_branches.get(branchName));
+//                    args.add("--");
+//                    args.add(blobName);
+//                    checkout(args);
+//                    _stagingArea.put(blobName, givenBlobs.get(blobName));
+//                } else if (isInGiven) {
+//                    continue;
+//                } else if (isModified(blobName, givenBlobs, currentBlobs)) {
+//                    String contents = "<<<<<<< HEAD\n";
+//                    contents += Arrays.toString(currentBlob.getContents());
+//                    contents += "=======\n";
+//                    contents += Arrays.toString(blob.getContents()) + ">>>>>>>";
+//                    Utils.writeContents(new File(blobName), contents);
+//                    add(blobName);
+//                    Utils.message("Encountered a merge conflict.");
+//                }
+//            }
+//        }
         String[] parents = new String[]{getHead(), _branches.get(branchName)};
         commit("Merged " + branchName + " into " + _head + ".", parents);
 
     }
 
-    /** This has a BRANCHNAME and a FILENAME. */
-    private void mergeConflict(String branchName, String fileName) {
-        Commit splitCommit = uidToCommit(splitPoint(branchName, _head));
-        Commit currentHead = uidToCommit(getHead());
-        Commit givenHead = uidToCommit(_branches.get(branchName));
-        HashMap<String, Blob> splitBlobs = splitCommit.get_blobs();
-        HashMap<String, Blob> currentBlobs = currentHead.get_blobs();
-        HashMap<String, Blob> givenBlobs = givenHead.get_blobs();
-        String cContents = "";
-        for (Blob blob : currentBlobs.values()) {
-            if (blob.get_name().equals(fileName)) {
-                cContents = Arrays.toString(blob.get_contents());
-                break;
-            }
-        }
-        String gContents = "";
-        for (Blob blob : givenBlobs.values()) {
-            if (blob.get_name().equals(fileName)) {
-                gContents = Arrays.toString(blob.get_contents());
-                break;
-            }
-        }
-        String contents = "<<<<<<< HEAD\n";
-        contents += cContents;
-        contents += "=======\n" + gContents;
-        contents += ">>>>>>>\n";
-        Utils.writeContents(new File(fileName), contents);
-        add(fileName);
-        Utils.message("Encountered a merge conflict.");
-    }
-
     /** Splitting up the merge. Need a BRANCHNAME. */
-    private void middleMerge(String branchName) {
+    private void mainMerge(String branchName) {
         String split = splitPoint(branchName, _head);
         Commit splitCommit = uidToCommit(split);
-        HashMap<String, Blob> splitBlobs = splitCommit.get_blobs();
         Commit currentHead = uidToCommit(getHead());
-        HashMap<String, Blob> currentBlobs = currentHead.get_blobs();
         Commit givenHead = uidToCommit(_branches.get(branchName));
-        HashMap<String, Blob> given = givenHead.get_blobs();
+        HashMap<String, Blob> splitBlobs = splitCommit.getBlobs();
+        HashMap<String, Blob> currentBlobs = currentHead.getBlobs();
+        HashMap<String, Blob> givenBlobs = givenHead.getBlobs();
 
         checkForUntracked(new File(System.getProperty("user.dir")));
 
         for (Blob blob : splitBlobs.values()) {
-            String blobName = blob.get_name();
+            String blobName = blob.getName();
             boolean presentInGiven = false;
-            for (Blob temp : given.values()) {
-                if (temp.get_name().equals(blobName)) {
+            for (Blob temp : givenBlobs.values()) {
+                if (temp.getName().equals(blobName)) {
                     presentInGiven = true;
                     break;
                 }
             }
             boolean isModifiedInCurrent = isModified(blobName, splitBlobs, currentBlobs);
-            boolean isModifiedInGiven = isModified(blobName, splitBlobs, given);
+            boolean isModifiedInGiven = isModified(blobName, splitBlobs, givenBlobs);
             if (!isModifiedInCurrent) {
                 if (!presentInGiven) {
                     Utils.restrictedDelete(new File(blobName));
@@ -591,30 +628,68 @@ public class Repo implements Serializable {
                 }
             }
             if (isModifiedInCurrent && isModifiedInGiven) {
-                if (isModified(blobName, given, currentBlobs)) {
+                if (isModified(blobName, givenBlobs, currentBlobs)) {
                     mergeConflict(branchName, blobName);
                 }
             }
         }
     }
 
-    /** Returns a boolean if the file with name F has been modified from
-     * branch H to branch I. */
+    /** This has a BRANCHNAME and a FILENAME. */
+    private void mergeConflict(String branchName, String fileName) {
+        Commit splitCommit = uidToCommit(splitPoint(branchName, _head));
+        Commit currentHead = uidToCommit(getHead());
+        Commit givenHead = uidToCommit(_branches.get(branchName));
+        HashMap<String, Blob> splitBlobs = splitCommit.getBlobs();
+        HashMap<String, Blob> currentBlobs = currentHead.getBlobs();
+        HashMap<String, Blob> givenBlobs = givenHead.getBlobs();
+        String cContents = "";
+        for (Blob blob : currentBlobs.values()) {
+            if (blob.getName().equals(fileName)) {
+                cContents = Arrays.toString(blob.getContents());
+                break;
+            }
+        }
+        String gContents = "";
+        for (Blob blob : givenBlobs.values()) {
+            if (blob.getName().equals(fileName)) {
+                gContents = Arrays.toString(blob.getContents());
+                break;
+            }
+        }
+        String contents = "<<<<<<< HEAD\n";
+        contents += cContents;
+        contents += "=======\n" + gContents;
+        contents += ">>>>>>>\n";
+        Utils.writeContents(new File(fileName), contents);
+        add(fileName);
+        Utils.message("Encountered a merge conflict.");
+    }
+
+    /**
+     * Helper Function for check whether the exact file has been changed
+     * from commit H to commit I.
+     * @param fileName String the name of file you want to check
+     * @param h HashMap<String, Blob> tracked blobs in commit H
+     * @param i HashMap<String, Blob> tracked blobs in commit i
+     * @return a boolean if the file with name F has been modified from
+     * commit H to commit I.
+     */
     boolean isModified(String fileName, HashMap<String, Blob> h, HashMap<String, Blob> i) {
         Blob b1 = null, b2 = null;
         for (Blob blob : h.values()) {
-            if (blob.get_name().equals(fileName)) {
+            if (blob.getName().equals(fileName)) {
                 b1 = blob;
             }
         }
         for (Blob blob : i.values()) {
-            if (blob.get_name().equals(fileName)) {
+            if (blob.getName().equals(fileName)) {
                 b2 = blob;
             }
         }
         if (b1 == null && b2 != null) {
             return true;
-        } else if (b1 != null && b2 ==null) {
+        } else if (b1 != null && b2 == null) {
             return true;
         }
         return !b1.equals(b2);
@@ -654,12 +729,15 @@ public class Repo implements Serializable {
      * continue. */
     private void checkForUntracked(File pwd) {
         Commit lastCommit = uidToCommit(getHead());
-        HashMap<String, Blob> trackedFiles = lastCommit.get_blobs();
+        HashMap<String, Blob> trackedFiles = lastCommit.getBlobs();
         String s = "There is an untracked file in the way; delete it, " +
                 "or add and commit it first.";
-        for (File f : pwd.listFiles()) {
+        for (File f : Objects.requireNonNull(pwd.listFiles())) {
+            if (f.getName().equals(".gitignore") || f.getName().equals("proj3.iml") || f.getName().equals("Makefile")) {
+                break; // FIXME: Delete
+            }
             if (trackedFiles == null) {
-                if (pwd.listFiles().length > 1) {
+                if (Objects.requireNonNull(pwd.listFiles()).length > 1) {
                     Utils.message(s);
                     throw new GitletException();
                 }
