@@ -131,6 +131,14 @@ public class Main {
                             System.exit(0);
                         }
                         break;
+                    case "merge":
+                        if (_operand.size() == 1) {
+                            repo.merge(_operand.get(0));
+                        } else {
+                            Utils.message("Incorrect Arguments");
+                            System.exit(0);
+                        }
+                        break;
                 }
                 Utils.writeObject(new File(".gitlet/repo"), repo);
             } else {

@@ -303,8 +303,11 @@ public class Repo implements Serializable {
         checkForUntracked(pwd);
 
         for (File file : Objects.requireNonNull(pwd.listFiles())) {
-            if (file.getName().equals(".gitignore") || file.getName().equals("proj3.iml") || file.getName().equals("Makefile")) {
-                break; // FIXME: Delete
+            if (file.getName().equals(".DS_Store") || file.getName().equals(".gitignore") || file.getName().equals("proj3.iml") || file.getName().equals("Makefile")) {
+                continue; // FIXME: Delete
+            }
+            if (file.isDirectory()) {
+                continue;
             }
             if (!file.getName().equals(".gitlet")) {
                 if (!Utils.restrictedDelete(file)) {
@@ -391,24 +394,23 @@ public class Repo implements Serializable {
         File pwd = new File(System.getProperty("user.dir"));
         checkForUntracked(pwd);
         for (File file : Objects.requireNonNull(pwd.listFiles())) {
-            if (file.getName().equals(".gitignore") || file.getName().equals("proj3.iml") || file.getName().equals("Makefile")) {
-                break; // FIXME: Delete
-            }
-            if (file.isDirectory()) {
-                break;
-            }
-            String fileName = file.getName();
-            boolean find = false;
-            for (Blob b : blobs.values()) {
-                if (fileName.equals(b.getName())) {
-                    find = true;
-                    break;
+            if (!file.isDirectory()) {
+                if (file.getName().equals(".gitignore") || file.getName().equals("proj3.iml") || file.getName().equals("Makefile")) {
+                    continue; // FIXME: Delete
                 }
-            }
-            if (!find) {
-                if (!Utils.restrictedDelete(file)) {
-                    Utils.message("Can not delete file" + file.getName());
-                    throw new GitletException();
+                String fileName = file.getName();
+                boolean find = false;
+                for (Blob b : blobs.values()) {
+                    if (fileName.equals(b.getName())) {
+                        find = true;
+                        break;
+                    }
+                }
+                if (!find) {
+                    if (!Utils.restrictedDelete(file)) {
+                        Utils.message("Can not delete file" + file.getName());
+                        throw new GitletException();
+                    }
                 }
             }
         }
@@ -441,7 +443,7 @@ public class Repo implements Serializable {
         }
     }
 
-    private void merge(String branchName) {
+    public void merge(String branchName) {
         String splitCommitHash = splitPoint(branchName, _head);
         if (_stagingArea.size() != 0 || _untrackedFiles.size() != 0) {
             Utils.message("You have uncommitted changes.");
@@ -526,12 +528,14 @@ public class Repo implements Serializable {
                 }
             }
             if (!isInCurrent) {
-                ArrayList<String> args = new ArrayList<>();
-                args.add(_branches.get(branchName));
-                args.add("--");
-                args.add(blobName);
-                checkout(args);
-                _stagingArea.put(blobName, givenBlobs.get(blobName));
+                if(!isInSplit) {
+                    ArrayList<String> args = new ArrayList<>();
+                    args.add(_branches.get(branchName));
+                    args.add("--");
+                    args.add(blobName);
+                    checkout(args);
+                    _stagingArea.put(blobName, givenBlobs.get(blobName));
+                }
             }
         }
 
@@ -733,8 +737,11 @@ public class Repo implements Serializable {
         String s = "There is an untracked file in the way; delete it, " +
                 "or add and commit it first.";
         for (File f : Objects.requireNonNull(pwd.listFiles())) {
-            if (f.getName().equals(".gitignore") || f.getName().equals("proj3.iml") || f.getName().equals("Makefile")) {
-                break; // FIXME: Delete
+            if (f.isDirectory()) {
+               continue;
+            }
+            if (f.getName().equals(".DS_Store") || f.getName().equals(".gitignore") || f.getName().equals("proj3.iml") || f.getName().equals("Makefile")) {
+                continue; // FIXME: Delete
             }
             if (trackedFiles == null) {
                 if (Objects.requireNonNull(pwd.listFiles()).length > 1) {
