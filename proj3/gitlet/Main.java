@@ -35,9 +35,16 @@ public class Main {
                 String _command = command.remove(0);
                 ArrayList<String> _operand = command;
                 if (_command.equals("init")) {
-                    repo = new Repo();
-                    File mr = new File(".gitlet/repo");
-                    Utils.writeObject(mr, repo);
+                    if (!tmpDir.exists()){
+                        repo = new Repo();
+                        File mr = new File(".gitlet/repo");
+                        Utils.writeObject(mr, repo);
+                    } else {
+                        System.out.println("A Gitlet version-control "
+                                + "system already exists in the "
+                                + "current directory");
+                        System.exit(0);
+                    }
                 }
                 switch (_command) {
                     case "add":
@@ -61,8 +68,6 @@ public class Main {
                         } else {
                             System.out.println("Incorrect Arguments");
                         }
-
-
                     case "checkout":
                         if (_operand.size() == 1) {
                             repo.checkout(_operand.get(0));

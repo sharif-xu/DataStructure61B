@@ -1,6 +1,9 @@
 package gitlet;
 
+import com.sun.tools.corba.se.idl.Util;
+
 import java.io.*;
+import java.nio.file.DirectoryIteratorException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -9,8 +12,8 @@ public class Repo implements Serializable {
 
 
     /** The structure is used to store the head of each branch,
-     *  key for filename, and corresponding value is uid of the
-     *  exact commit.
+     *  key for branchName, and corresponding value is uid of the
+     *  exact commit of this branch.
      */
     private HashMap<String, String> _branches;
 
@@ -268,26 +271,26 @@ public class Repo implements Serializable {
         }
         String commID = _branches.get(branchName);
         Commit comm = uidToCommit(commID);
-        HashMap<String, Blob> files = comm.get_blobs();
-        String pwdString = System.getProperty("user.dir");
-        File pwd = new File(pwdString);
+        HashMap<String, Blob> blobs = comm.get_blobs();
+        File pwd = new File(System.getProperty("user.dir"));
         checkForUntracked(pwd);
-        for (File file : pwd.listFiles()) {
-            if (files == null) {
-                Utils.restrictedDelete(file);
-            } else {
-                boolean b = !files.containsKey(file.getName());
-                if (b && !file.getName().equals(".gitlet")) {
-                    Utils.restrictedDelete(file);
+
+        for (File file : Objects.requireNonNull(pwd.listFiles())) {
+            if (!file.getName().equals(".gitlet")) {
+                if (!Utils.restrictedDelete(file)) {
+                    Utils.message("Can not delete file" + file.getName());
+                    throw new GitletException();
                 }
             }
         }
-        if (files != null) {
-            for (String file : files.keySet()) {
-                String g = ".gitlet/staging/" + files.get(file);
-                File f = new File(g);
-                String contents = Utils.readContentsAsString(f);
-                Utils.writeContents(new File(file), contents);
+        if (blobs != null) {
+            for (Blob blob : blobs.values()) {
+                String fileDir = blob.get_name();
+                String blobhash = blob.get_hashID();
+                File blobfile = new File(".gitlet/staging/" + blobhash);
+                File file = new File(fileDir);
+                String contents = Utils.readContentsAsString(blobfile);
+                Utils.writeContents(file, contents);
             }
         }
         _stagingArea = new HashMap<String, Blob>();
@@ -353,9 +356,9 @@ public class Repo implements Serializable {
 
     public void reset(String commitUid) {
         commitUid = shortToLong(commitUid);
-        File pwd = new File(System.getProperty("user.dir"));
         Commit c = uidToCommit(commitUid);
         HashMap<String, Blob> blobs = c.get_blobs();
+        File pwd = new File(System.getProperty("user.dir"));
         checkForUntracked(pwd);
         for (File file : Objects.requireNonNull(pwd.listFiles())) {
             if (file.isDirectory()) {
@@ -376,10 +379,13 @@ public class Repo implements Serializable {
                 }
             }
         }
-        for (String blobhash : blobs.keySet()) {
-            File f = new File(".gitlet/staging/" + blobhash);
-            String contents = Utils.readContentsAsString(f);
-            Utils.writeContents(new File(blobhash), contents);
+        for (Blob blob : blobs.values()) {
+            String fileDir = System.getProperty("user.dir") + blob.get_name();
+            String blobhash = blob.get_hashID();
+            File blobfile = new File(".gitlet/staging/" + blobhash);
+            File file = new File(fileDir);
+            String contents = Utils.readContentsAsString(blobfile);
+            Utils.writeContents(file, contents);
         }
         _stagingArea = new HashMap<String, Blob>();
         _branches.put(_head, commitUid);
@@ -408,21 +414,21 @@ public class Repo implements Serializable {
      * that mean that this checkout or Merge operation can't
      * continue. */
     private void checkForUntracked(File pwd) {
-        String s;
-        s = "There is an untracked file in the way; ";
-        s += "delete it or add it first.";
-        Commit mostRecent = uidToCommit(getHead());
-        HashMap<String, Blob> trackedFiles = mostRecent.get_blobs();
-        for (File file : pwd.listFiles()) {
+        Commit lastCommit = uidToCommit(getHead());
+        HashMap<String, Blob> trackedFiles = lastCommit.get_blobs();
+        String s = "There is an untracked file in the way; delete it, " +
+                "or add and commit it first.";
+        for (File f : pwd.listFiles()) {
             if (trackedFiles == null) {
                 if (pwd.listFiles().length > 1) {
                     Utils.message(s);
                     throw new GitletException();
                 }
             } else {
-                boolean b = !trackedFiles.containsKey(file.getName());
-                boolean c = !_stagingArea.containsKey(file.getName());
-                if (b && !file.getName().equals(".gitlet") && c) {
+                boolean notTracked = !trackedFiles.containsKey(f.getName());
+                boolean notStaging = !_stagingArea.containsKey(f.getName());
+                boolean notRoot = !f.getName().equals(".gitlet");
+                if (notRoot && notTracked && notStaging) {
                     Utils.message(s);
                     throw new GitletException();
                 }
