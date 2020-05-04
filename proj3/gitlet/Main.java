@@ -3,7 +3,6 @@ package gitlet;
 import com.sun.tools.corba.se.idl.Util;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -20,21 +19,17 @@ public class Main {
                 Utils.message("Please enter a command.");
                 throw new GitletException();
             }
-            ArrayList<String> command = new ArrayList<>(Arrays.asList(args));
-            String cwd = System.getProperty("user.dir");
+            ArrayList<String> input = new ArrayList<>(Arrays.asList(args));
             Repo repo = null;
-            File tmpDir = new File(cwd + "/.gitlet");
+            File tmpDir = new File(_cwdString + "/.gitlet");
             if (tmpDir.exists()) {
                 File mr =  new File(".gitlet/repo");
                 if (mr.exists()) {
                     repo = Utils.readObject(mr, Repo.class);
                 }
-
             }
-            String _command = command.remove(0);
-            ArrayList<String> _operand = command;
-            if (_command.equals("init")) {
-                if (!tmpDir.exists()){
+            if (input.get(0).equals("init")) {
+                if (!tmpDir.exists()) {
                     repo = new Repo();
                     File mr = new File(".gitlet/repo");
                     Utils.writeObject(mr, repo);
@@ -50,102 +45,17 @@ public class Main {
                     Utils.message("Not in an initialized Gitlet directory.");
                     System.exit(0);
                 }
-                switch (_command) {
-                    case "add":
-                        if (_operand.size() == 1) {
-                            repo.add(_operand.get(0));
-                            break;
-                        } else {
-                            System.out.println("Incorrect Argument");
-                        }
-                    case "log":
-                        if (_operand.isEmpty()) {
-                            repo.log();
-                            break;
-                        } else {
-                            System.out.println("Incorrect Arguments");
-                        }
-                    case "global-log":
-                        if (_operand.isEmpty()) {
-                            repo.globalLog();
-                            break;
-                        } else {
-                            System.out.println("Incorrect Arguments");
-                        }
-                    case "checkout":
-                        if (_operand.size() == 1) {
-                            repo.checkout(_operand.get(0));
-                        } else {
-                            repo.checkout(_operand);
-                        }
-                        break;
-                    case "commit":
-                        if (_operand.size() == 1) {
-                            repo.commit(_operand.get(0));
-                        } else {
-                            Utils.message("Incorrect Arguments");
-                            System.exit(0);
-                        }
-                        break;
-                    case "status":
-                        if (_operand.size() == 0) {
-                            repo.status();
-                        } else {
-                            Utils.message("Incorrect Arguments");
-                            System.exit(0);
-                        }
-                        break;
-                    case "rm":
-                        if (_operand.size() == 1) {
-                            repo.rm(_operand.get(0));
-                        } else {
-                            Utils.message("Incorrect Arguments");
-                            System.exit(0);
-                        }
-                        break;
-                    case  "branch":
-                        if (_operand.size() == 1) {
-                            repo.branch(_operand.get(0));
-                        } else {
-                            Utils.message("Incorrect Arguments");
-                            System.exit(0);
-                        }
-                        break;
-                    case "rm-branch":
-                        if (_operand.size() == 1) {
-                            repo.rmbranch(_operand.get(0));
-                        } else {
-                            Utils.message("Incorrect Arguments");
-                            System.exit(0);
-                        }
-                        break;
-                    case "reset":
-                        if (_operand.size() == 1) {
-                            repo.reset(_operand.get(0));
-                        } else {
-                            Utils.message("Incorrect Arguments");
-                            System.exit(0);
-                        }
-                        break;
-                    case "find":
-                        if (_operand.size() == 1) {
-                            repo.find(_operand.get(0));
-                        } else {
-                            Utils.message("Incorrect Arguments");
-                            System.exit(0);
-                        }
-                        break;
-                    case "merge":
-                        if (_operand.size() == 1) {
-                            repo.merge(_operand.get(0));
-                        } else {
-                            Utils.message("Incorrect Arguments");
-                            System.exit(0);
-                        }
-                        break;
-                    case "default":
-                        Utils.message(" No command with that name exists.");
-                        System.exit(0);
+                if (input.get(0).equals("checkout")) {
+                    if (input.size() == 2) {
+                        repo.checkout(input.get(1));
+                    } else {
+                        input.remove(0);
+                        repo.checkout(input);
+                    }
+                } else if (input.size() == 1) {
+                    emptyOperandCommand(input, repo);
+                } else if (input.size() == 2) {
+                    oneOperandCommand(input, repo);
                 }
                 Utils.writeObject(new File(".gitlet/repo"), repo);
             } else {
@@ -157,6 +67,64 @@ public class Main {
         }
     }
 
+    /**
+     * Call the method with no input in Class Repo.
+     * @param in Arraylist Input Args
+     * @param repo Repo the main operation class
+     */
+    private static void emptyOperandCommand(ArrayList<String> in, Repo repo) {
+        String command = in.remove(0);
+        switch (command) {
+        case "log":
+            repo.log();
+            break;
+        case "status":
+            repo.status();
+            break;
+        case "global-log":
+            repo.globalLog();
+            break;
+        default:
+        }
+    }
+
+    /**
+     * Call the method with one operand in Class Repo.
+     * @param in Arraylist Input Args
+     * @param repo Repo the main operation class
+     */
+    private static void oneOperandCommand(ArrayList<String> in, Repo repo) {
+        String command = in.get(0);
+        String operand = in.get(1);
+        switch (command) {
+        case "add":
+            repo.add(operand);
+            break;
+        case "commit":
+            repo.commit(operand);
+            break;
+        case "rm":
+            repo.rm(operand);
+            break;
+        case "branch":
+            repo.branch(operand);
+            break;
+        case "rm-branch":
+            repo.rmbranch(operand);
+            break;
+        case "reset":
+            repo.reset(operand);
+            break;
+        case "find":
+            repo.find(operand);
+            break;
+        case "merge":
+            repo.merge(operand);
+            break;
+        default:
+
+        }
+    }
 
     /** Takes in a string ARG word, will return whether or not
      * it is a valid command. */
@@ -171,8 +139,17 @@ public class Main {
 
     /** Array of possible valid commands. */
     private static String[] _vaildCommands = new String[] {"init", "add",
-            "commit", "rm", "log", "global-log",
-            "find", "status", "checkout",
-            "branch", "rm-branch", "reset", "merge"};
+        "commit", "rm", "log", "global-log", "find", "status", "checkout",
+        "branch", "rm-branch", "reset", "merge"};
+
+    /**
+     * The current working directory, File type.
+     */
+    private static File _cwd = new File(System.getProperty("user.dir"));
+
+    /**
+     * The current working directory, String type.
+     */
+    private static String _cwdString = System.getProperty("user.dir");
 
 }
