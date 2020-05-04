@@ -4,9 +4,12 @@ import com.sun.tools.corba.se.idl.Util;
 
 import java.io.File;
 import java.io.Serializable;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 public class Blob implements Serializable {
     /** Name of the modified file. */
@@ -19,10 +22,17 @@ public class Blob implements Serializable {
      * Util.readContents() method. */
     private byte[] _contents;
 
+    private String _contentsAsString;
+
+    private String _timeStamp;
+
     public Blob(String name) {
         File file = new File(name);
         _name = name;
         _contents = Utils.readContents(file);
+        _contentsAsString = Utils.readContentsAsString(file);
+        ZonedDateTime now = java.time.ZonedDateTime.now();
+        _timeStamp = now.format(DateTimeFormatter.ofPattern("EEE MMM d HH:mm:ss yyyy xxxx", Locale.ENGLISH));
         _hashID = createHashId();
     }
 
@@ -45,6 +55,6 @@ public class Blob implements Serializable {
     }
 
     public String getContentsAsString() {
-        return Arrays.toString(_contents);
+        return _contentsAsString;
     }
 }

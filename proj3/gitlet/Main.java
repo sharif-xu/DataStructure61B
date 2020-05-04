@@ -20,31 +20,35 @@ public class Main {
                 Utils.message("Please enter a command.");
                 throw new GitletException();
             }
-            if (validCommand(args[0])) {
-                ArrayList<String> command = new ArrayList<>(Arrays.asList(args));
-                String cwd = System.getProperty("user.dir");
-                Repo repo = null;
-                File tmpDir = new File(cwd + "/.gitlet");
-                if (tmpDir.exists()) {
-                    File mr =  new File(".gitlet/repo");
-                    if (mr.exists()) {
-                        repo = Utils.readObject(mr, Repo.class);
-                    }
-
+            ArrayList<String> command = new ArrayList<>(Arrays.asList(args));
+            String cwd = System.getProperty("user.dir");
+            Repo repo = null;
+            File tmpDir = new File(cwd + "/.gitlet");
+            if (tmpDir.exists()) {
+                File mr =  new File(".gitlet/repo");
+                if (mr.exists()) {
+                    repo = Utils.readObject(mr, Repo.class);
                 }
-                String _command = command.remove(0);
-                ArrayList<String> _operand = command;
-                if (_command.equals("init")) {
-                    if (!tmpDir.exists()){
-                        repo = new Repo();
-                        File mr = new File(".gitlet/repo");
-                        Utils.writeObject(mr, repo);
-                    } else {
-                        System.out.println("A Gitlet version-control "
-                                + "system already exists in the "
-                                + "current directory");
-                        System.exit(0);
-                    }
+
+            }
+            String _command = command.remove(0);
+            ArrayList<String> _operand = command;
+            if (_command.equals("init")) {
+                if (!tmpDir.exists()){
+                    repo = new Repo();
+                    File mr = new File(".gitlet/repo");
+                    Utils.writeObject(mr, repo);
+                } else {
+                    System.out.println("A Gitlet version-control "
+                            + "system already exists in the "
+                            + "current directory");
+                    System.exit(0);
+                }
+            }
+            if (validCommand(args[0])) {
+                if (!tmpDir.exists()) {
+                    Utils.message("Not in an initialized Gitlet directory.");
+                    System.exit(0);
                 }
                 switch (_command) {
                     case "add":
@@ -139,10 +143,13 @@ public class Main {
                             System.exit(0);
                         }
                         break;
+                    case "default":
+                        Utils.message(" No command with that name exists.");
+                        System.exit(0);
                 }
                 Utils.writeObject(new File(".gitlet/repo"), repo);
             } else {
-                Utils.message(args[0]+" is not a valid command!");
+                Utils.message(" No command with that name exists.");
                 throw new GitletException();
             }
         } catch (GitletException e) {

@@ -49,6 +49,10 @@ public class Commit implements Serializable {
         return _blobs;
     }
 
+    public Commit() {
+
+    }
+
     /**
      * Commit constructor called by init command
      */
@@ -93,5 +97,9 @@ public class Commit implements Serializable {
             return _parentid[0];
         }
         return null;
+    }
+
+    public String[] getAllParentID() {
+        return _parentid;
     }
 }

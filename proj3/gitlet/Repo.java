@@ -1,5 +1,7 @@
 package gitlet;
 
+import org.checkerframework.checker.units.qual.C;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -34,6 +36,11 @@ public class Repo implements Serializable {
      * that it's pointing to.*/
     private LinkedHashMap<String, Commit> _commit;
 
+    public HashMap<Commit, Integer> branch1Commits = new HashMap<Commit, Integer>();
+    public HashMap<Commit, Integer> branch2Commits = new HashMap<Commit, Integer>();
+
+    private Stack<Commit> stack = new Stack<>();
+
 
     public HashMap<String, String> get_branches() {
         return _branches;
@@ -54,6 +61,7 @@ public class Repo implements Serializable {
     public LinkedHashMap<String, Commit> get_commit() {
         return _commit;
     }
+
 
 
     public Repo() {
@@ -91,13 +99,27 @@ public class Repo implements Serializable {
         Commit lastCommit = uidToCommit(getHead());
         HashMap<String, Blob> files = lastCommit.getBlobs();
         File stagingblob = new File(".gitlet/staging/" + blobHashID);
-        if (stagingblob.exists()) {
-            _stagingArea.remove(filename);
+        boolean alreadyAdded = false;
+        boolean emptyBlobs = false;
+        if (files == null) {
+            emptyBlobs = true;
         } else {
+            for (Blob temp : files.values()) {
+                if (temp.getHashID().equals(blobHashID)) {
+                    alreadyAdded = true;
+                    break;
+                }
+            }
+        }
+        if (!alreadyAdded || emptyBlobs) {
             _stagingArea.put(filename, blob);
             String contents = Utils.readContentsAsString(new File(filename));
             Utils.writeContents(stagingblob, contents);
-        }
+        } else {
+           if (stagingblob.exists()) {
+               _stagingArea.remove(filename);
+           }
+       }
     }
 
     public void commit(String msg) {
@@ -122,7 +144,7 @@ public class Repo implements Serializable {
             throw new GitletException();
         }
         String[] parent = new String[]{lastCommit.getUid()};
-        String branch = lastCommit.getBranchName();
+        String branch = _head;
         Commit newCommit = new Commit(msg, parent, branch, trackedFiles);
         String s = newCommit.getUid();
         File newCommFile = new File(".gitlet/commits/" + s);
@@ -462,6 +484,7 @@ public class Repo implements Serializable {
             throw new GitletException();
         }
         if (splitCommitHash.equals(_branches.get(_head))) {
+            checkout(branchName);
             _branches.put(_head, _branches.get(branchName));
             Utils.message("Current branch fast-forwarded.");
             throw new GitletException();
@@ -474,120 +497,91 @@ public class Repo implements Serializable {
         HashMap<String, Blob> currentBlobs = currentHead.getBlobs();
         HashMap<String, Blob> givenBlobs = givenHead.getBlobs();
 
-        for (Blob blob : splitBlobs.values()) {
-            String blobName = blob.getName();
-            boolean isModifiedInCurrent = isModified(blobName, splitBlobs, currentBlobs);
-            boolean isModifiedInGiven = isModified(blobName, splitBlobs, givenBlobs);
-            boolean isInCurrent = false, isInGiven = false;
-            for (Blob temp : currentBlobs.values()) {
-                if (temp.getName().equals(blobName)) {
-                    isInCurrent = true;
-                    break;
+        if (splitBlobs != null) {
+            for (Blob blob : splitBlobs.values()) {
+                String blobName = blob.getName();
+                boolean isModifiedInCurrent = isModified(blobName, splitBlobs, currentBlobs);
+                boolean isModifiedInGiven = isModified(blobName, splitBlobs, givenBlobs);
+                boolean isModifiedBetween = isModified(blobName, currentBlobs, givenBlobs);
+                boolean isInCurrent = false, isInGiven = false;
+                for (Blob temp : currentBlobs.values()) {
+                    if (temp.getName().equals(blobName)) {
+                        isInCurrent = true;
+                        break;
+                    }
                 }
-            }
-            for (Blob temp : givenBlobs.values()) {
-                if (temp.getName().equals(blobName)) {
-                    isInGiven = true;
-                    break;
+                for (Blob temp : givenBlobs.values()) {
+                    if (temp.getName().equals(blobName)) {
+                        isInGiven = true;
+                        break;
+                    }
                 }
-            }
-            if (isInCurrent && !isInGiven) {
-               Utils.restrictedDelete(blobName);
-                rm(blobName);
-               _untrackedFiles.add(blobName);
-               break;
-            }
-            if (isInCurrent && isInGiven) {
-                if (isModifiedInCurrent || !isModifiedInGiven) {
-                    break; //do nothing
+                if (isInCurrent && !isInGiven) {
+                    if (isModifiedInCurrent) {
+                        mergeConflict(branchName, blobName);
+                    } else {
+                        rm(blobName);
+                        _untrackedFiles.add(blobName);
+                    }
                 }
-                //fixme
-            }
-            if (!isInCurrent && isInGiven) {
-                if (!isModifiedInGiven) {
-                    break; //do nothing
+                if (isInCurrent && isInGiven) {
+                    if (isModifiedBetween) {
+                        mergeConflict(branchName, blobName);
+                        break;
+                    }
+                    //fixme
                 }
-            }
+                if (!isInCurrent && isInGiven) {
+                    if (isModifiedInGiven) {
+                        mergeConflict(branchName, blobName);
+                        break;
+                    }
+                }
 
-        }
-
-        for (Blob blob : givenBlobs.values()) {
-            String blobName = blob.getName();
-            String blobHash = blob.getHashID();
-            boolean isInSplit = false, isInCurrent = false;
-            for (Blob temp : currentBlobs.values()) {
-                if (temp.getName().equals(blobName)) {
-                    isInCurrent = true;
-                    break;
-                }
-            }
-            for (Blob temp : splitBlobs.values()) {
-                if (temp.getName().equals(blobName)) {
-                    isInSplit = true;
-                    break;
-                }
-            }
-            if (!isInCurrent) {
-                if(!isInSplit) {
-                    ArrayList<String> args = new ArrayList<>();
-                    args.add(_branches.get(branchName));
-                    args.add("--");
-                    args.add(blobName);
-                    checkout(args);
-                    _stagingArea.put(blobName, givenBlobs.get(blobName));
-                }
             }
         }
 
+        if (givenBlobs != null) {
+            for (Blob blob : givenBlobs.values()) {
+                String blobName = blob.getName();
+                String blobHash = blob.getHashID();
+                boolean isInSplit = false, isInCurrent = false;
+                boolean isModifiedBetween = isModified(blobName, currentBlobs, givenBlobs);
+                for (Blob temp : currentBlobs.values()) {
+                    if (temp.getName().equals(blobName)) {
+                        isInCurrent = true;
+                        break;
+                    }
+                }
+                if (splitBlobs != null) {
+                    for (Blob temp : splitBlobs.values()) {
+                        if (temp.getName().equals(blobName)) {
+                            isInSplit = true;
+                            break;
+                        }
+                    }
+                }
+                if (!isInCurrent) {
+                    if(!isInSplit) {
+                        ArrayList<String> args = new ArrayList<>();
+                        args.add(_branches.get(branchName));
+                        args.add("--");
+                        args.add(blobName);
+                        checkout(args);
+                        _stagingArea.put(blobName, givenBlobs.get(blobName));
+                    }
+                } else {
+                    if (!isInSplit) {
+                        if (isModifiedBetween) {
+                            mergeConflict(branchName, blobName);
+                            break;
+                        }
+                    }
+                }
 
+            }
+        }
 
-//        mainMerge(branchName);
-//
-//        for (Blob blob : givenBlobs.values()) {
-//            String blobName = blob.getName();
-//            boolean isInSplit = false, isInCurrent = false;
-//            boolean isInGiven = false;
-//            for (Blob temp : splitBlobs.values()) {
-//                if (temp.getName().equals(blobName)) {
-//                    isInSplit = true;
-//                    break;
-//                }
-//            }
-//            Blob currentBlob = null;
-//            for (Blob temp : currentBlobs.values()) {
-//                if (temp.getName().equals(blobName)) {
-//                    isInCurrent = true;
-//                    currentBlob = temp;
-//                    break;
-//                }
-//            }
-//            for (Blob temp : givenBlobs.values()) {
-//                if (temp.getName().equals(blobName)) {
-//                    isInGiven = true;
-//                    break;
-//                }
-//            }
-//            if (!isInSplit) {
-//                if (!isInCurrent) {
-//                    ArrayList<String> args = new ArrayList<>();
-//                    args.add(_branches.get(branchName));
-//                    args.add("--");
-//                    args.add(blobName);
-//                    checkout(args);
-//                    _stagingArea.put(blobName, givenBlobs.get(blobName));
-//                } else if (isInGiven) {
-//                    continue;
-//                } else if (isModified(blobName, givenBlobs, currentBlobs)) {
-//                    String contents = "<<<<<<< HEAD\n";
-//                    contents += Arrays.toString(currentBlob.getContents());
-//                    contents += "=======\n";
-//                    contents += Arrays.toString(blob.getContents()) + ">>>>>>>";
-//                    Utils.writeContents(new File(blobName), contents);
-//                    add(blobName);
-//                    Utils.message("Encountered a merge conflict.");
-//                }
-//            }
-//        }
         String[] parents = new String[]{getHead(), _branches.get(branchName)};
         commit("Merged " + branchName + " into " + _head + ".", parents);
 
@@ -650,21 +644,21 @@ public class Repo implements Serializable {
         String cContents = "";
         for (Blob blob : currentBlobs.values()) {
             if (blob.getName().equals(fileName)) {
-                cContents = Arrays.toString(blob.getContents());
+                cContents = blob.getContentsAsString();
                 break;
             }
         }
         String gContents = "";
         for (Blob blob : givenBlobs.values()) {
             if (blob.getName().equals(fileName)) {
-                gContents = Arrays.toString(blob.getContents());
+                gContents = blob.getContentsAsString();
                 break;
             }
         }
         String contents = "<<<<<<< HEAD\n";
-        contents += cContents;
+        contents += cContents + "\n";
         contents += "=======\n" + gContents;
-        contents += ">>>>>>>\n";
+        contents += "\n>>>>>>>";
         Utils.writeContents(new File(fileName), contents);
         add(fileName);
         Utils.message("Encountered a merge conflict.");
@@ -680,50 +674,76 @@ public class Repo implements Serializable {
      * commit H to commit I.
      */
     boolean isModified(String fileName, HashMap<String, Blob> h, HashMap<String, Blob> i) {
-        Blob b1 = null, b2 = null;
+        String b1 = "", b2 = "";
         for (Blob blob : h.values()) {
             if (blob.getName().equals(fileName)) {
-                b1 = blob;
+                b1 = blob.getHashID();
             }
         }
         for (Blob blob : i.values()) {
             if (blob.getName().equals(fileName)) {
-                b2 = blob;
+                b2 = blob.getHashID();
             }
         }
-        if (b1 == null && b2 != null) {
-            return true;
-        } else if (b1 != null && b2 == null) {
-            return true;
-        }
         return !b1.equals(b2);
+
     }
 
     /** Takes in two branch names, BRANCH1 and BRANCH2. Returns the
      * SHA ID of the common ancestor commit. */
     private String splitPoint(String branch1, String branch2) {
-        ArrayList<String> branch1Commits = new ArrayList<String>();
-        ArrayList<String> branch2Commits = new ArrayList<String>();
+        String head1hash = _branches.get(branch1);
+        String head2hash = _branches.get(branch2);
+        Commit head1 = uidToCommit(head1hash);
+        Commit head2 = uidToCommit(head2hash);
 
-        String parent1 = _branches.get(branch1);
-        String parent2 = _branches.get(branch2);
+        branch1Commits.put(head1, 0);
+        branch2Commits.put(head2, 0);
+        Commit splitCommit = new Commit();
 
-        while (parent1 != null) {
-            branch1Commits.add(parent1);
-            Commit comm1 = uidToCommit(parent1);
-            parent1 = comm1.getParentID();
-        }
-        while (parent2 != null) {
-            branch2Commits.add(parent2);
-            Commit comm2 = uidToCommit(parent2);
-            parent2 = comm2.getParentID();
-        }
-        for (String commit : branch1Commits) {
-            if (branch2Commits.contains(commit)) {
-                return commit;
+        DFS(head1, 0, "branch1");
+        DFS(head2, 0, "branch2");
+        int dist = 100;
+
+        for (Commit current : branch1Commits.keySet()) {
+            for (Commit given : branch2Commits.keySet()) {
+                if (current.getUid().equals(given.getUid())) {
+                    if (branch1Commits.get(current) < dist) {
+                        splitCommit = current;
+                        dist = branch1Commits.get(current);
+                    }
+                }
             }
         }
-        return "";
+        branch1Commits.clear();
+        branch2Commits.clear();
+        return splitCommit.getUid();
+
+    }
+
+    public void DFS(Commit head, int dist, String branch) {
+        if (head == null) {
+            return;
+        }
+        if (head.getAllParentID() == null) {
+            return;
+        }
+        String[] headParent = head.getAllParentID();
+        if (branch.equals("branch1")) {
+            for (String s : headParent) {
+                Commit temp = uidToCommit(s);
+                dist += 1;
+                branch1Commits.put(temp, dist);
+                DFS(temp, dist, "branch1");
+            }
+        } else {
+            for (String s : headParent) {
+                Commit temp = uidToCommit(s);
+                dist += 1;
+                branch2Commits.put(temp, dist);
+                DFS(temp, dist, "branch2");
+            }
+        }
     }
 
 
