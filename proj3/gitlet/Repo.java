@@ -289,16 +289,70 @@ public class Repo implements Serializable {
         }
         System.out.println();
         System.out.println("=== Removed Files ===");
-        Object[] untracks = _removedFiles.toArray();
-        Arrays.sort(untracks);
-        for (Object removed : untracks) {
+        Object[] removeds = _removedFiles.toArray();
+        Arrays.sort(removeds);
+        for (Object removed : removeds) {
             System.out.println(removed);
         }
-        System.out.println();
+
+
+        ArrayList<File> modify = new ArrayList<File>();
+        ArrayList<File> untrack = new ArrayList<File>();
+        ArrayList<File> deleted = new ArrayList<File>();
+        String head = _branches.get(_head);
+        stateDetect(head, modify, untrack, deleted);
+
         System.out.println("\n=== Modifications Not Staged For Commit ===");
-        System.out.println();
+
         System.out.println("\n=== Untracked Files ===");
         System.out.println();
+
+
+    }
+
+    /** StateDetect function is to detect state information.
+     * @param commitHash is path of the commit state.
+     * @param modify is modified files.
+     * @param untrack is untracked files.
+     * @param delete is deleted files.*/
+    public void stateDetect(String commitHash, ArrayList<File> modify,
+                            ArrayList<File> untrack, ArrayList<File> delete) {
+        HashMap<String, Blob> curentBlobs = uidToCommit(commitHash).getBlobs();
+        ArrayList<File> cwdDirAll = new ArrayList<>();
+        for (File file : Objects.requireNonNull(cwd.listFiles())) {
+            if (!file.isDirectory()) {
+                cwdDirAll.add(file);
+            }
+        }
+        boolean untrackedFlag = true;
+
+        if (!cwdDirAll.isEmpty()) {
+            if (curentBlobs == null) {
+                untrack.addAll(cwdDirAll);
+            } else {
+                for (File file : cwdDirAll) {
+                    String contents = Utils.readContentsAsString(file);
+                    for (Blob blob : curentBlobs.values()) {
+                        if (blob.getName().equals(file.getName())) {
+                            untrackedFlag = false;
+                            if (!blob.getContentsAsString().equals(contents)) {
+                                modify.add(file);
+                            }
+                        }
+                        if (untrackedFlag) {
+                            untrack.add(file);
+                        }
+                    }
+                }
+            }
+        } else {
+            if (curentBlobs != null) {
+                for (Blob blob : curentBlobs.values()) {
+                    File temp = new File(blob.getName());
+                    delete.add(temp);
+                }
+            }
+        }
     }
 
     /**
