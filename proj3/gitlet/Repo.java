@@ -50,7 +50,7 @@ public class Repo implements Serializable {
      * these are files that WERE tracked before, and now, for the
      * next commit, they're not going to be added.
      */
-    private ArrayList<String> _untrackedFiles;
+    private ArrayList<String> _removedFiles;
 
     /**
      * Return the head commit's uid of current branch.
@@ -91,7 +91,7 @@ public class Repo implements Serializable {
             _branches = new HashMap<String, String>();
             _branches.put("master", initial.getUid());
             _stagingArea = new HashMap<String, Blob>();
-            _untrackedFiles = new ArrayList<String>();
+            _removedFiles = new ArrayList<String>();
         } else {
             System.out.println("A Gitlet version-control "
                     + "system already exists in the "
@@ -108,7 +108,7 @@ public class Repo implements Serializable {
             Utils.message("File does not exist.");
             throw new GitletException();
         }
-        _untrackedFiles.remove(filename);
+        _removedFiles.remove(filename);
         Blob blob = new Blob(filename);
         String blobHashID = blob.getHashID();
         Commit lastCommit = uidToCommit(getHead());
@@ -151,11 +151,11 @@ public class Repo implements Serializable {
         if (trackedFiles == null) {
             trackedFiles = new HashMap<String, Blob>();
         }
-        if (_stagingArea.size() != 0 || _untrackedFiles.size() != 0) {
+        if (_stagingArea.size() != 0 || _removedFiles.size() != 0) {
             for (String fileName : _stagingArea.keySet()) {
                 trackedFiles.put(fileName, _stagingArea.get(fileName));
             }
-            for (String fileName : _untrackedFiles) {
+            for (String fileName : _removedFiles) {
                 trackedFiles.remove(fileName);
             }
         } else {
@@ -170,7 +170,7 @@ public class Repo implements Serializable {
         Utils.writeObject(newCommFile, newCommit);
 
         _stagingArea = new HashMap<String, Blob>();
-        _untrackedFiles = new ArrayList<String>();
+        _removedFiles = new ArrayList<String>();
         _branches.put(_head, newCommit.getUid());
     }
 
@@ -189,11 +189,11 @@ public class Repo implements Serializable {
         if (trackedFiles == null) {
             trackedFiles = new HashMap<String, Blob>();
         }
-        if (_stagingArea.size() != 0 || _untrackedFiles.size() != 0) {
+        if (_stagingArea.size() != 0 || _removedFiles.size() != 0) {
             for (String fileName : _stagingArea.keySet()) {
                 trackedFiles.put(fileName, _stagingArea.get(fileName));
             }
-            for (String fileName : _untrackedFiles) {
+            for (String fileName : _removedFiles) {
                 trackedFiles.remove(fileName);
             }
         } else {
@@ -207,7 +207,7 @@ public class Repo implements Serializable {
         Utils.writeObject(newCommFile, newCommit);
 
         _stagingArea = new HashMap<String, Blob>();
-        _untrackedFiles = new ArrayList<String>();
+        _removedFiles = new ArrayList<String>();
         _branches.put(_head, newCommit.getUid());
     }
 
@@ -289,15 +289,15 @@ public class Repo implements Serializable {
         }
         System.out.println();
         System.out.println("=== Removed Files ===");
-        Object[] untracks = _untrackedFiles.toArray();
+        Object[] untracks = _removedFiles.toArray();
         Arrays.sort(untracks);
         for (Object removed : untracks) {
             System.out.println(removed);
         }
         System.out.println();
-        System.out.println("=== Modifications Not Staged For Commit ===");
+        System.out.println("\n=== Modifications Not Staged For Commit ===");
         System.out.println();
-        System.out.println("=== Untracked Files ===");
+        System.out.println("\n=== Untracked Files ===");
         System.out.println();
     }
 
@@ -386,7 +386,7 @@ public class Repo implements Serializable {
             }
         }
         _stagingArea = new HashMap<String, Blob>();
-        _untrackedFiles = new ArrayList<String>();
+        _removedFiles = new ArrayList<String>();
         _head = branchName;
     }
 
@@ -419,7 +419,7 @@ public class Repo implements Serializable {
             changed = true;
         }
         if (flag) {
-            _untrackedFiles.add(fileName);
+            _removedFiles.add(fileName);
             File toRemove = new File(fileName);
             Utils.restrictedDelete(toRemove);
             changed = true;
@@ -534,7 +534,7 @@ public class Repo implements Serializable {
             Utils.message("A branch with that name does not exist.");
             throw new GitletException();
         }
-        if (_stagingArea.size() != 0 || _untrackedFiles.size() != 0) {
+        if (_stagingArea.size() != 0 || _removedFiles.size() != 0) {
             Utils.message("You have uncommitted changes.");
             throw new GitletException();
         }
@@ -696,7 +696,7 @@ public class Repo implements Serializable {
 
     /**
      * This method used to handle the conflict situation when
-     * merge two branches
+     * merge two branches.
      * @param branchName String the given branch name
      * @param fileName String the file which is conflict
      */
