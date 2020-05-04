@@ -1,6 +1,5 @@
 package gitlet;
 
-import org.checkerframework.checker.units.qual.C;
 import java.io.File;
 import java.io.Serializable;
 import java.nio.file.Files;

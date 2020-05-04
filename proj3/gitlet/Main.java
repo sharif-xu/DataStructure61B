@@ -1,7 +1,5 @@
 package gitlet;
 
-import com.sun.tools.corba.se.idl.Util;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
