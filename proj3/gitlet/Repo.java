@@ -9,7 +9,6 @@ import java.util.*;
 
 public class Repo implements Serializable {
 
-
     /** The structure is used to store the head of each branch,
      *  key for branchName, and corresponding value is uid of the
      *  exact commit of this branch.
@@ -39,7 +38,11 @@ public class Repo implements Serializable {
     public HashMap<Commit, Integer> branch1Commits = new HashMap<Commit, Integer>();
     public HashMap<Commit, Integer> branch2Commits = new HashMap<Commit, Integer>();
 
-    private Stack<Commit> stack = new Stack<>();
+    private final File pwd = new File(System.getProperty("user.dir"));
+
+    private final String pwdString = System.getProperty("user.dir");
+
+
 
 
     public HashMap<String, String> get_branches() {
@@ -321,7 +324,6 @@ public class Repo implements Serializable {
         String commID = _branches.get(branchName);
         Commit comm = uidToCommit(commID);
         HashMap<String, Blob> blobs = comm.getBlobs();
-        File pwd = new File(System.getProperty("user.dir"));
         checkForUntracked(pwd);
 
         for (File file : Objects.requireNonNull(pwd.listFiles())) {
@@ -364,6 +366,7 @@ public class Repo implements Serializable {
                 String blobname = temp.getName();
                 if (blobname.equals(fileName)) {
                     flag = true;
+                    break;
                 }
             }
         }
@@ -413,7 +416,6 @@ public class Repo implements Serializable {
         commitUid = shortToLong(commitUid);
         Commit c = uidToCommit(commitUid);
         HashMap<String, Blob> blobs = c.getBlobs();
-        File pwd = new File(System.getProperty("user.dir"));
         checkForUntracked(pwd);
         for (File file : Objects.requireNonNull(pwd.listFiles())) {
             if (!file.isDirectory()) {
@@ -466,19 +468,19 @@ public class Repo implements Serializable {
     }
 
     public void merge(String branchName) {
-        String splitCommitHash = splitPoint(branchName, _head);
-        if (_stagingArea.size() != 0 || _untrackedFiles.size() != 0) {
-            Utils.message("You have uncommitted changes.");
-            throw new GitletException();
-        }
         if (!_branches.containsKey(branchName)) {
             Utils.message("A branch with that name does not exist.");
+            throw new GitletException();
+        }
+        if (_stagingArea.size() != 0 || _untrackedFiles.size() != 0) {
+            Utils.message("You have uncommitted changes.");
             throw new GitletException();
         }
         if (branchName.equals(_head)) {
             Utils.message("Cannot merge a branch with itself.");
             throw new GitletException();
         }
+        String splitCommitHash = splitPoint(_head, branchName);
         if (splitCommitHash.equals(_branches.get(branchName))) {
             Utils.message("Given branch is an ancestor of the current branch.");
             throw new GitletException();
@@ -489,7 +491,7 @@ public class Repo implements Serializable {
             Utils.message("Current branch fast-forwarded.");
             throw new GitletException();
         }
-        checkForUntracked(new File(System.getProperty("user.dir")));
+        checkForUntracked(pwd);
         Commit splitCommit = uidToCommit(splitCommitHash);
         Commit currentHead = uidToCommit(getHead());
         Commit givenHead = uidToCommit(_branches.get(branchName));
@@ -521,15 +523,17 @@ public class Repo implements Serializable {
                         mergeConflict(branchName, blobName);
                     } else {
                         rm(blobName);
-                        _untrackedFiles.add(blobName);
+                        Utils.restrictedDelete(pwdString + blobName);
                     }
                 }
                 if (isInCurrent && isInGiven) {
-                    if (isModifiedBetween) {
+                    if (isModifiedBetween && isModifiedInCurrent && isModifiedInGiven) {
                         mergeConflict(branchName, blobName);
                         break;
                     }
-                    //fixme
+                    if (isModifiedInGiven) {
+                        checkoutFileInGiven(branchName, givenBlobs, blobName);
+                    }
                 }
                 if (!isInCurrent && isInGiven) {
                     if (isModifiedInGiven) {
@@ -563,12 +567,7 @@ public class Repo implements Serializable {
                 }
                 if (!isInCurrent) {
                     if(!isInSplit) {
-                        ArrayList<String> args = new ArrayList<>();
-                        args.add(_branches.get(branchName));
-                        args.add("--");
-                        args.add(blobName);
-                        checkout(args);
-                        _stagingArea.put(blobName, givenBlobs.get(blobName));
+                        checkoutFileInGiven(branchName, givenBlobs, blobName);
                     }
                 } else {
                     if (!isInSplit) {
@@ -581,10 +580,17 @@ public class Repo implements Serializable {
 
             }
         }
-
         String[] parents = new String[]{getHead(), _branches.get(branchName)};
         commit("Merged " + branchName + " into " + _head + ".", parents);
+    }
 
+    private void checkoutFileInGiven(String branchName, HashMap<String, Blob> givenBlobs, String blobName) {
+        ArrayList<String> args = new ArrayList<>();
+        args.add(_branches.get(branchName));
+        args.add("--");
+        args.add(blobName);
+        checkout(args);
+        _stagingArea.put(blobName, givenBlobs.get(blobName));
     }
 
     /** Splitting up the merge. Need a BRANCHNAME. */
@@ -597,7 +603,7 @@ public class Repo implements Serializable {
         HashMap<String, Blob> currentBlobs = currentHead.getBlobs();
         HashMap<String, Blob> givenBlobs = givenHead.getBlobs();
 
-        checkForUntracked(new File(System.getProperty("user.dir")));
+        checkForUntracked(pwd);
 
         for (Blob blob : splitBlobs.values()) {
             String blobName = blob.getName();
@@ -658,7 +664,7 @@ public class Repo implements Serializable {
         String contents = "<<<<<<< HEAD\n";
         contents += cContents + "\n";
         contents += "=======\n" + gContents;
-        contents += "\n>>>>>>>";
+        contents += "\n>>>>>>>\n";
         Utils.writeContents(new File(fileName), contents);
         add(fileName);
         Utils.message("Encountered a merge conflict.");
@@ -691,9 +697,9 @@ public class Repo implements Serializable {
 
     /** Takes in two branch names, BRANCH1 and BRANCH2. Returns the
      * SHA ID of the common ancestor commit. */
-    private String splitPoint(String branch1, String branch2) {
-        String head1hash = _branches.get(branch1);
-        String head2hash = _branches.get(branch2);
+    private String splitPoint(String currentBranch, String givenBranch) {
+        String head1hash = _branches.get(currentBranch);
+        String head2hash = _branches.get(givenBranch);
         Commit head1 = uidToCommit(head1hash);
         Commit head2 = uidToCommit(head2hash);
 
