@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Objects;
 
 
-/** The main class repo for Gitlet. It contains all commands' implemention.
+/** The main class repo for Gitlet. It contains all commands' implementation.
  *  @author Ruize Xu
  */
 public class Repo implements Serializable {
@@ -34,7 +34,7 @@ public class Repo implements Serializable {
 
     /**
      * The head pointer that corresponds to the branch that actually will be
-     * pointing at the commit that we want .
+     * pointing at the commit that we want.
      */
     private String _head;
 
@@ -46,19 +46,11 @@ public class Repo implements Serializable {
     private HashMap<String, Blob> _stagingArea;
 
     /**
-     * Untracked files are like the opposite of the Staging Area,
+     * Removed files are like the opposite of the Staging Area,
      * these are files that WERE tracked before, and now, for the
      * next commit, they're not going to be added.
      */
     private ArrayList<String> _removedFiles;
-
-    /**
-     * Return the head commit's uid of current branch.
-     * @return String uid
-     */
-    public String getHead() {
-        return _branches.get(_head);
-    }
 
     /**
      * Global variable stores the data used for
@@ -71,6 +63,14 @@ public class Repo implements Serializable {
      * resurion in dfsForSplitCommit() method.
      */
     private HashMap<Commit, Integer> gCommits = new HashMap<Commit, Integer>();
+
+    /**
+     * Return the head commit's uid of current branch.
+     * @return String uid
+     */
+    public String getHead() {
+        return _branches.get(_head);
+    }
 
     /**
      * Constructor.
@@ -776,9 +776,9 @@ public class Repo implements Serializable {
             }
         }
         String contents = "<<<<<<< HEAD\n";
-        contents += cContents + "\n";
+        contents += cContents;
         contents += "=======\n" + gContents;
-        contents += "\n>>>>>>>\n";
+        contents += ">>>>>>>\n";
         Utils.writeContents(new File(fileName), contents);
         add(fileName);
         Utils.message("Encountered a merge conflict.");

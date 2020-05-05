@@ -25,8 +25,7 @@ public class Blob implements Serializable {
      * Util.readContentsAsString() method. */
     private String _contentsAsString;
 
-    /** Store the content which read from file using the
-     * Util.readContents() method. */
+    /** Store the time the blob object is formed. */
     private String _timestamp;
 
     /**
@@ -68,6 +67,7 @@ public class Blob implements Serializable {
     public byte[] getContents() {
         return _contents;
     }
+
     /** Return the Blob content as String type. */
     public String getContentsAsString() {
         return _contentsAsString;
